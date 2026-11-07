@@ -11,6 +11,7 @@ import "react-native-reanimated";
 import "../global.css";
 
 import { queryClient } from "@/api/queryClient";
+import { SessaoProvider } from "@/context/SessaoContext";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -61,11 +62,15 @@ function LayoutRaizNav() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-      {/* Os grupos (auth), (tabs), (app) e a pasta pública sos/ entram nos próximos passos */}
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-      </Stack>
+      <SessaoProvider>
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+        {/* A pasta pública sos/ e o grupo (app) entram nos próximos passos */}
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </SessaoProvider>
     </QueryClientProvider>
   );
 }

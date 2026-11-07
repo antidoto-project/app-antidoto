@@ -4,20 +4,31 @@
     "slug": "antidoto",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/images/antidoto-icone-app.png",
     "scheme": "antidoto",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/antidoto-simbolo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFF8E1"
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "br.fiap.mad.antidoto",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/antidoto-icone-adaptativo.png",
+        "backgroundColor": "#0B6E4F"
+      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "bundler": "metro",
-      "output": "static"
+      "output": "static",
+      "favicon": "./assets/images/antidoto-icone-app.png"
     },
     "plugins": ["expo-router", "expo-font"],
     "experiments": {

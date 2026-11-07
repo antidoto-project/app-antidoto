@@ -5,18 +5,23 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
-      // Identidade visual do MVP-02 §7. Use sempre a classe (bg-marca,
-      // text-emergencia...), nunca o #hex no style.
+      // Paleta da identidade visual do Antídoto; as cores de
+      // urgência (alta, moderada) e os tons do tema escuro vêm do MVP-02 §7.
+      // Use sempre a classe (bg-marca, text-emergencia...), nunca o #hex no style.
       colors: {
-        marca: "#1B5E20",
-        "marca-claro": "#4C8C4A",
-        // Só o botão SOS, o selo EMERGENCIA e o 192
+        // Verde escuro
+        marca: "#0B6E4F",
+        // Verde vivo: a marca sobre o fundo escuro
+        "marca-claro": "#2BB673",
+        // Vermelho SOS: só o botão SOS, o selo EMERGENCIA e o 192
         emergencia: "#C62828",
         alta: "#EF6C00",
         moderada: "#F9A825",
+        // Creme
         fundo: "#FFF8E1",
         "fundo-escuro": "#121212",
-        texto: "#263238",
+        // Grafite
+        texto: "#1E2A2F",
         "texto-escuro": "#ECEFF1",
       },
       // Inter, carregada no _layout.tsx raiz (useFonts). No Android o peso vem

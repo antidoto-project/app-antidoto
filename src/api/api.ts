@@ -1,11 +1,11 @@
-import { create } from "axios";
+import { create, isAxiosError } from "axios";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 /*
  * Cliente HTTP da API Java do Antídoto (contrato: docs/api/openapi-mvp.yaml).
- * A autenticação é por JWT, no cabeçalho `Authorization: Bearer`. O interceptor
- * que coloca o token e trata o 401 entra no Passo 2, junto com o SessaoContext.
+ * A autenticação é por JWT, no cabeçalho `Authorization: Bearer` (interceptors
+ * no fim do arquivo). Quem guarda o token é o SessaoContext.
  * Nenhuma chave de API fica no app: só o endereço, que vem do .env.
  */
 
@@ -51,3 +51,39 @@ export const api = create({
   },
   timeout: TEMPO_LIMITE_API_MS,
 });
+
+// ─── Sessão (JWT) ────────────────────────────────────────────────────────────
+
+// Token da sessão atual. Só o SessaoContext muda (ao entrar, sair, abrir o app).
+let tokenDeAcesso: string | null = null;
+
+export function definirTokenDeAcesso(token: string | null) {
+  tokenDeAcesso = token;
+}
+
+// Quem cuida da sessão expirada: o SessaoContext registra um tratador que limpa
+// a sessão local; o <RotaProtegida> reage sozinho e manda para o login.
+type TratadorSessaoExpirada = () => void;
+let tratadorSessaoExpirada: TratadorSessaoExpirada | null = null;
+
+export function definirTratadorSessaoExpirada(tratador: TratadorSessaoExpirada | null) {
+  tratadorSessaoExpirada = tratador;
+}
+
+api.interceptors.request.use((config) => {
+  if (tokenDeAcesso) config.headers.set("Authorization", `Bearer ${tokenDeAcesso}`);
+  return config;
+});
+
+// 401 numa chamada que levou o token = sessão inválida ou expirada (o JWT do MVP
+// dura 24 h): sai e volta ao login (MVP-02 §5.1). Sem token — o próprio login —
+// o 401 é só "E-mail ou senha incorretos", e quem trata é a tela.
+// Não há tratamento global para 403: é "sem permissão", não sessão inválida.
+api.interceptors.response.use(
+  (resposta) => resposta,
+  (erro) => {
+    const levouToken = isAxiosError(erro) && Boolean(erro.config?.headers?.Authorization);
+    if (levouToken && erro.response?.status === 401) tratadorSessaoExpirada?.();
+    return Promise.reject(erro);
+  }
+);

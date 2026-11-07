@@ -1,6 +1,11 @@
 import { AxiosError, AxiosHeaders, type AxiosResponse } from "axios";
 
-import { classificarErro, errosDeCampoDaApi, mensagemDaApi } from "@/api/erros";
+import {
+  classificarErro,
+  errosDaApiNoFormulario,
+  errosDeCampoDaApi,
+  mensagemDaApi,
+} from "@/api/erros";
 
 const config = { headers: new AxiosHeaders() };
 
@@ -84,5 +89,56 @@ describe("errosDeCampoDaApi", () => {
     expect(errosDeCampoDaApi(erroHttp(400, { mensagem: "Dados inválidos" }))).toEqual({});
     expect(errosDeCampoDaApi(erroHttp(400, { campos: [{ campo: 1 }, null] }))).toEqual({});
     expect(errosDeCampoDaApi(new Error("x"))).toEqual({});
+  });
+});
+
+describe("errosDaApiNoFormulario", () => {
+  const CAMPOS = ["nome", "email", "senha"] as const;
+
+  it("400: cada erro vai para o seu campo, sem mensagem geral", () => {
+    const erro = erroHttp(400, {
+      mensagem: "Um ou mais campos são inválidos.",
+      campos: [
+        { campo: "email", mensagem: "E-mail inválido" },
+        { campo: "senha", mensagem: "Senha fraca" },
+      ],
+    });
+
+    expect(errosDaApiNoFormulario(erro, CAMPOS)).toEqual({
+      porCampo: [
+        { campo: "email", mensagem: "E-mail inválido" },
+        { campo: "senha", mensagem: "Senha fraca" },
+      ],
+      geral: null,
+    });
+  });
+
+  it("400 com um campo que a tela não tem: a mensagem dele vira a geral", () => {
+    const erro = erroHttp(400, {
+      campos: [
+        { campo: "email", mensagem: "E-mail inválido" },
+        { campo: "perfil", mensagem: "Perfil inválido" },
+      ],
+    });
+
+    expect(errosDaApiNoFormulario(erro, CAMPOS)).toEqual({
+      porCampo: [{ campo: "email", mensagem: "E-mail inválido" }],
+      geral: "Perfil inválido",
+    });
+  });
+
+  it("409 (e-mail já cadastrado): mensagem geral da API (MVP-02 §5.1)", () => {
+    const erro = erroHttp(409, { status: 409, mensagem: "E-mail já cadastrado." });
+
+    expect(errosDaApiNoFormulario(erro, CAMPOS)).toEqual({
+      porCampo: [],
+      geral: "E-mail já cadastrado.",
+    });
+  });
+
+  it("sem conexão: mensagem geral padrão", () => {
+    const erro = new AxiosError("Network Error", "ERR_NETWORK", config);
+
+    expect(errosDaApiNoFormulario(erro, CAMPOS).geral).toBe("Sem conexão. Tente novamente.");
   });
 });

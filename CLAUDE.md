@@ -25,22 +25,23 @@ Este arquivo é o contrato de desenvolvimento do projeto: todo código gerado (p
 
 ## 2. Stack e Dependências
 
-| Categoria         | Biblioteca                                                                                           |
-| ----------------- | ---------------------------------------------------------------------------------------------------- |
-| Runtime/Framework | Expo `~54`, React Native `0.81`, React `19.1`, TypeScript                                            |
-| Navegação         | `expo-router` `~6` (rotas por arquivo, `typedRoutes` no `app.json`)                                  |
-| Estilização       | `nativewind` `^4` (Tailwind via `className`)                                                         |
-| Formulários       | `react-hook-form` `^7` + `@hookform/resolvers/zod` (Passo 2)                                         |
-| Validação         | `zod` `^4`                                                                                           |
-| Data fetching     | `@tanstack/react-query` `^5`                                                                         |
-| HTTP client       | `axios` `^1`                                                                                         |
-| Sessão            | `@react-native-async-storage/async-storage` (Passo 2)                                                |
-| Ícones            | `@expo/vector-icons` — **só `Ionicons`** (fonte pré-carregada no `_layout.tsx` raiz)                 |
-| Fonte             | **Inter** (`assets/fonts`, 3 pesos), carregada com `useFonts` do `expo-font` — sem biblioteca nova   |
-| Versão instalada  | `expo-application` — `nativeBuildVersion` na tela Sobre o App (Passo 7)                              |
-| GPS               | `expo-location` — **única biblioteca nova** do MVP (entra no Passo 4)                                |
-| Testes            | `jest` + `jest-expo` + `@testing-library/react-native`                                               |
-| Lint/formatação   | ESLint (`eslint-config-expo`) + Prettier (`.prettierrc`: 100 colunas, aspas duplas, ponto e vírgula) |
+| Categoria         | Biblioteca                                                                                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime/Framework | Expo `~54`, React Native `0.81`, React `19.1`, TypeScript                                                                                                |
+| Navegação         | `expo-router` `~6` (rotas por arquivo, `typedRoutes` no `app.json`)                                                                                      |
+| Estilização       | `nativewind` `^4` (Tailwind via `className`)                                                                                                             |
+| Formulários       | `react-hook-form` `^7` + `@hookform/resolvers/zod`                                                                                                       |
+| Validação         | `zod` `^4`                                                                                                                                               |
+| Data fetching     | `@tanstack/react-query` `^5`                                                                                                                             |
+| HTTP client       | `axios` `^1`                                                                                                                                             |
+| Sessão            | `@react-native-async-storage/async-storage` (token JWT e usuário)                                                                                        |
+| Ícones            | `@expo/vector-icons` — **só `Ionicons`** (fonte pré-carregada no `_layout.tsx` raiz)                                                                     |
+| Fonte             | **Inter** (`assets/fonts`, 3 pesos), carregada com `useFonts` do `expo-font` — sem biblioteca nova                                                       |
+| Assets            | `expo-asset`: vem com o Expo; declarado no `package.json` porque o `expo-font` o usa e o npm não o deixava na raiz do `node_modules` (o Jest não achava) |
+| Versão instalada  | `expo-application` — `nativeBuildVersion` na tela Sobre o App (Passo 7)                                                                                  |
+| GPS               | `expo-location` — **única biblioteca nova** do MVP (entra no Passo 4)                                                                                    |
+| Testes            | `jest` + `jest-expo` + `@testing-library/react-native`                                                                                                   |
+| Lint/formatação   | ESLint (`eslint-config-expo`) + Prettier (`.prettierrc`: 100 colunas, aspas duplas, ponto e vírgula)                                                     |
 
 Ligar e abrir a rota usam o `Linking` do React Native (`tel:` e link do Google Maps), **sem biblioteca**.
 
@@ -62,34 +63,51 @@ Ligar e abrir a rota usam o `Linking` do React Native (`tel:` e link do Google M
 ```
 src/
 ├── api/
-│   ├── api.ts            ← instância do axios (baseURL via definirUrlDaApi, 10 s). Bearer e 401: Passo 2
-│   ├── erros.ts          ← classificarErro / mensagemPorTipo / mensagemErroApi / mensagemDaApi / errosDeCampoDaApi
+│   ├── api.ts            ← instância do axios (baseURL via definirUrlDaApi, 10 s), Bearer do token da sessão e 401 → sessão expirada
+│   ├── erros.ts          ← classificarErro / mensagemPorTipo / mensagemErroApi / mensagemDaApi / errosDeCampoDaApi / errosDaApiNoFormulario
 │   ├── paginacao.ts      ← tipo Pagina<T> do contrato + extrairLista
 │   └── queryClient.ts    ← instância do QueryClient (só importado no _layout.tsx raiz)
 ├── app/
-│   ├── _layout.tsx       ← raiz: fontes (Ionicons + Inter), QueryClientProvider, Stack
-│   ├── index.tsx         ← HOJE: tela de entrada provisória (nome, versão, commit). Passo 2: porta de entrada (sessão → Início; sem sessão → login)
-│   ├── (auth)/           ← (Passo 2) login (T1, com o botão SOS), cadastro (T2)
+│   ├── _layout.tsx       ← raiz: fontes (Ionicons + Inter), QueryClientProvider > SessaoProvider > Stack
+│   ├── index.tsx         ← porta de entrada: lendo a sessão → carregando; com sessão → Início; sem sessão → /login
+│   ├── (auth)/           ← login (T1, com o logo; o botão SOS entra no Passo 3), cadastro (T2)
 │   ├── sos/              ← (Passo 3–4) PÚBLICA, logado ou não (RN-G1): triagem (T3), resultado (T4), primeiros-socorros/[tipoAnimal] (T5)
-│   ├── (tabs)/           ← (Passo 2+) com <RotaProtegida>: index = Início (T6), avistamentos (T7), ocorrencias (T8), perfil (T9)
+│   ├── (tabs)/           ← com <RotaProtegida>: index = Início (T6: saudação + telefones úteis), perfil (T9: dados + Sair). Passos 5–6: avistamentos (T7), ocorrencias (T8)
 │   └── (app)/            ← (Passo 5+) com <RotaProtegida>, em Stack: avistamentos/novo (T10), avistamentos/[id] (T11), ocorrencias/[id] (T12), sobre (T13)
-├── components/           ← (Passo 2+) ui/ (CampoTexto, CampoSelecao, BotaoEnviar, TelaFormulario), sos/, avistamentos/, ocorrencias/, e na raiz EstadoVazio, EstadoErro, RotaProtegida
-├── context/              ← (Passo 2) SessaoContext.tsx
-├── hooks/                ← (Passo 2+) dados: useAutenticacao, usePerfil, useUnidades, useOcorrencias, useAvistamentos, useConteudo · tela: useTriagem, useLocalizacao
-├── schemas/              ← (Passo 2+) login, cadastro, perfil, avistamento, triagem (.schema.ts)
-├── services/             ← (Passo 2+) autenticacao, unidade, ocorrencia, avistamento, conteudo (.service.ts)
+├── components/
+│   ├── ui/               ← CampoTexto, BotaoEnviar, TelaFormulario (prop `topo` para o logo). Passo 3+: CampoSelecao
+│   ├── sos/              ← TelefonesUteis (RN-G8). Passo 3+: BotaoSos, SeloUrgencia, BotaoLigar192...
+│   ├── perfil/           ← DadosPessoaisCard, ContaCard (só da tela Perfil)
+│   ├── EstadoErro.tsx    ← erro de carregamento com "Tentar novamente". Passo 5: EstadoVazio
+│   ├── LogoAntidoto.tsx  ← logo horizontal; versão de texto branco no tema escuro
+│   └── RotaProtegida.tsx ← sem sessão → /login
+├── context/
+│   └── SessaoContext.tsx ← ÚNICA fonte de verdade da sessão (seção 9)
+├── hooks/
+│   ├── useAutenticacao.ts ← useEntrar, useCadastrar + CHAVE_USUARIO_LOGADO (["usuario","me"])
+│   ├── usePerfil.ts       ← useUsuarioLogado (Passo 7: useAtualizarUsuario)
+│   └── (Passo 3+)         ← dados: useUnidades, useOcorrencias, useAvistamentos, useConteudo · tela: useTriagem, useLocalizacao
+├── schemas/              ← login, cadastro (+ CAMPOS_LOGIN / CAMPOS_CADASTRO). Passo 3+: triagem, avistamento, perfil
+├── services/
+│   ├── autenticacao.service.ts ← autenticacaoService.{entrar, cadastrar, buscarUsuarioLogado}
+│   └── (Passo 4+)              ← unidade, ocorrencia, avistamento, conteudo (.service.ts)
 ├── types/
-│   └── enums.types.ts    ← enums do contrato como listas `as const` + tipos (TipoAnimal, FaixaEtaria, Urgencia, TipoSoro, TipoUnidade, LocalAvistamento, StatusResumo, Perfil, Sintoma)
+│   ├── enums.types.ts    ← enums do contrato como listas `as const` + tipos (TipoAnimal, FaixaEtaria, Urgencia, TipoSoro, TipoUnidade, LocalAvistamento, StatusResumo, Perfil, Sintoma)
+│   └── usuario.types.ts  ← Usuario, RespostaAutenticacao
 ├── utils/
 │   ├── rotulos.ts        ← LABEL_* dos enums (textos da tela), SINTOMAS_DE_ALERTA, ehSintomaDeAlerta
 │   ├── data.ts           ← converterDataParaBR (Passo 3: formatarDataHora, tempoDecorrido, horaPorOpcao)
+│   ├── mascaras.ts       ← somenteDigitos, mascararTelefone
+│   ├── telefones.ts      ← TELEFONES_UTEIS (RN-G8: 192, 193, 0800 722 6001) e linkLigar
+│   ├── cabecalho.ts      ← opcoesCabecalhoNativo (cores da barra nativa do Stack nos dois temas)
 │   ├── versao.ts         ← versaoDoApp (versão + commit de Constants.expoConfig.extra), buildDoApp (número do build e ambiente)
-│   └── (Passo 3+) urgencia.ts (RN-U), mascaras.ts, links.ts
+│   └── (Passo 3+) urgencia.ts (RN-U), links.ts
 ├── testes/
 │   └── clienteDeTeste.ts ← QueryClient dos testes (sem retry e sem o timer de limpeza do cache)
 ├── __tests__/            ← um arquivo por regra ou tela
 └── global.css            ← @tailwind base/components/utilities
 assets/fonts/             ← Inter_400Regular, Inter_600SemiBold, Inter_700Bold (.ttf) + OFL.txt (licença)
+assets/images/            ← PNGs do app (seção 4, "Identidade visual"): ícone, ícone adaptativo, símbolo (splash), logo claro e escuro
 docs/                     ← pacote MVP (MVP-00, MVP-02) e o contrato docs/api/openapi-mvp.yaml — não editar sem combinar com o Java.
                             Eles ainda usam o nome antigo, "SOS Peçonha": o app se chama Antídoto
 ```
@@ -102,17 +120,35 @@ docs/                     ← pacote MVP (MVP-00, MVP-02) e o contrato docs/api/
 - Nunca passe cor via `style={{ color: "#hex" }}`. Sempre uma classe.
 - **Antes de usar uma classe de cor, confirme que ela existe** no `tailwind.config.js` ou na paleta padrão do Tailwind. Classe inexistente não dá erro — a cor só não aparece.
 
-**Tokens de cor** (`tailwind.config.js`, MVP-02 §7):
+**Tokens de cor** (`tailwind.config.js`): a paleta da identidade visual do Antídoto; as cores de urgência e os tons do tema escuro vêm do MVP-02 §7.
 
-| Classe                                  | Hex                   | Uso                                                 |
-| --------------------------------------- | --------------------- | --------------------------------------------------- |
-| `bg-marca` / `text-marca`               | `#1B5E20`             | Barra, botões principais                            |
-| `bg-marca-claro` / `text-marca-claro`   | `#4C8C4A`             | Variante clara (ex.: texto da marca no tema escuro) |
-| `bg-emergencia` / `text-emergencia`     | `#C62828`             | **Só** o botão SOS, o selo `EMERGENCIA` e o 192     |
-| `bg-alta` / `text-alta`                 | `#EF6C00`             | Selo `ALTA`                                         |
-| `bg-moderada` / `text-moderada`         | `#F9A825`             | Selo `MODERADA`                                     |
-| `bg-fundo` / `dark:bg-fundo-escuro`     | `#FFF8E1` / `#121212` | Fundo das telas                                     |
-| `text-texto` / `dark:text-texto-escuro` | `#263238` / `#ECEFF1` | Texto                                               |
+| Classe                                  | Hex                   | Origem           | Uso                                              |
+| --------------------------------------- | --------------------- | ---------------- | ------------------------------------------------ |
+| `bg-marca` / `text-marca`               | `#0B6E4F`             | Verde escuro     | Barra, botões principais, links                  |
+| `bg-marca-claro` / `text-marca-claro`   | `#2BB673`             | Verde vivo       | A marca no tema escuro (`dark:text-marca-claro`) |
+| `bg-emergencia` / `text-emergencia`     | `#C62828`             | Vermelho SOS     | **Só** o botão SOS, o selo `EMERGENCIA` e o 192  |
+| `bg-alta` / `text-alta`                 | `#EF6C00`             | MVP-02           | Selo `ALTA`                                      |
+| `bg-moderada` / `text-moderada`         | `#F9A825`             | MVP-02           | Selo `MODERADA`                                  |
+| `bg-fundo` / `dark:bg-fundo-escuro`     | `#FFF8E1` / `#121212` | Creme / MVP-02   | Fundo das telas                                  |
+| `text-texto` / `dark:text-texto-escuro` | `#1E2A2F` / `#ECEFF1` | Grafite / MVP-02 | Texto                                            |
+
+O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e do ícone (PNG): não viraram classe porque nenhuma tela usa. Crie o token quando uma tela precisar.
+
+**Cores fora do `className`:** a prop `color` do `Ionicons` e do `ActivityIndicator`, as cores da tab bar e a barra nativa do Stack não aceitam classe, então levam o `#hex` do token (`#0B6E4F` no claro, `#2BB673` no escuro; neutros `#6B7280`). `cabecalho.test.ts` confere que `utils/cabecalho.ts` usa os mesmos valores do `tailwind.config.js`. Ao mudar um token, procure o hex antigo no `src/`.
+
+**Identidade visual:** no projeto ficam só os PNGs que o app usa, em `assets/images/` (o pacote completo da identidade, com SVGs e variações, fica com o time, fora do repositório):
+
+| Arquivo                               | Onde                                     | De onde veio                                                                   |
+| ------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
+| `antidoto-icone-app.png`              | `icon` e `web.favicon` do `app.json`     | `png/antidoto-icone-app.png` da identidade                                     |
+| `antidoto-icone-adaptativo.png`       | `android.adaptiveIcon` (fundo `#0B6E4F`) | gota branca do `antidoto-simbolo-branco.svg`, dentro da área segura do Android |
+| `antidoto-simbolo.png`                | `splash` (fundo creme `#FFF8E1`)         | `png/antidoto-simbolo.png` da identidade                                       |
+| `antidoto-logo-horizontal.png`        | `LogoAntidoto` no tema claro (login)     | `antidoto-logo-horizontal.svg`, sem a margem                                   |
+| `antidoto-logo-horizontal-escuro.png` | `LogoAntidoto` no tema escuro            | o mesmo SVG com o texto branco, como os PNGs `fundo-preto`/`fundo-grafite`     |
+
+- O logo é sempre o `LogoAntidoto`, nunca outro `<Image>` com o PNG. O tamanho dele vai no `style` (exceção à regra do `className`): no navegador, o react-native-web põe no `<Image>` o tamanho original do PNG, que ganha da classe.
+- Nada de redesenhar o logo nem trocar as cores dele: se faltar uma versão, gere a partir dos SVGs do pacote da identidade e coloque em `assets/images/` só o PNG que for usado.
+- Assinatura da marca: "Do susto ao soro certo."
 
 **Tipografia:**
 
@@ -142,7 +178,7 @@ docs/                     ← pacote MVP (MVP-00, MVP-02) e o contrato docs/api/
 - **Services:** chamadas HTTP e conversão do payload (máscara, data, lista paginada). Padrão objeto (`avistamentoService.criar`). Comentar todo contorno de limitação da API. Exceção do MVP: `conteudo.service.ts` devolve o conteúdo **local** de primeiros socorros numa `Promise`, para o hook seguir o padrão `useQuery`.
 - **Schemas:** só Zod, exportando o tipo inferido. Use as listas de `types/enums.types.ts` no `z.enum`.
 - **Utils:** funções puras, sem hooks e sem I/O, **sempre com teste**.
-- **Context:** um único `SessaoContext` para a sessão (Passo 2).
+- **Context:** um único `SessaoContext` para a sessão.
 
 **Chaves do TanStack Query** (MVP-02 §4): `["usuario","me"]` · `["unidades","proximas", latitude, longitude, tipoAnimal]` · `["ocorrencias","minhas"]` · `["ocorrencias", id]` · `["avistamentos","meus"]` · `["avistamentos", id]` · `["conteudo","primeiros-socorros", tipoAnimal]`.
 
@@ -164,25 +200,32 @@ docs/                     ← pacote MVP (MVP-00, MVP-02) e o contrato docs/api/
 
 - `useForm` + `zodResolver` + schema em `src/schemas/`. Campos com `CampoTexto`/`CampoSelecao`; envio com `BotaoEnviar`.
 - O botão usa o `isPending` do `useMutation` (nunca o `isSubmitting`).
-- **Erros da API** (`src/api/erros.ts`): no 400, `errosDeCampoDaApi(erro)` dá `campo → mensagem` para o `setError` de cada campo; o resto vai para `setError("root", { message: mensagemDaApi(erro) })`. Nunca silenciar um erro.
+- **Erros da API** (`src/api/erros.ts`): `errosDaApiNoFormulario(erro, CAMPOS_DA_TELA)` divide o erro em `porCampo` (o `campos[]` do 400 com um campo que existe na tela → `setError` de cada um) e `geral` (campo que a tela não tem, 409, 500, sem conexão → `setError("root")`). Cada schema exporta a lista dos seus campos (`CAMPOS_LOGIN`, `CAMPOS_CADASTRO`). Nunca silenciar um erro.
+- **409 no cadastro** ("E-mail já cadastrado."): mensagem geral, como manda o MVP-02 §5.1 — não vai para baixo do campo e-mail.
 - Telefone: máscara na tela (`utils/mascaras.ts`), só os dígitos na API — a conversão fica no service.
 - Datas: a API usa ISO-8601 UTC (`toISOString()`); a tela mostra DD/MM/AAAA HH:mm. A conversão fica em `utils/data.ts`/service, nunca na tela.
 
 ---
 
-## 9. Autenticação e Sessão (Passo 2)
+## 9. Autenticação e Sessão
 
-- **JWT** no cabeçalho `Authorization: Bearer` (`POST /api/auth/login` e `/api/auth/cadastro` devolvem `{ token, tipo, expiraEmSegundos, usuario }`). Não há refresh token no MVP.
-- `SessaoContext` é a **única** fonte de verdade da sessão: token e usuário no AsyncStorage (`@antidoto:token`, `@antidoto:usuario`), com `entrar()` e `sair()`.
-- **401 numa rota logada** ⇒ `sair()` e login. **No login**, o 401 é só a mensagem "E-mail ou senha incorretos".
-- **Logout** limpa o AsyncStorage e faz `queryClient.clear()`.
+- **JWT** no cabeçalho `Authorization: Bearer` (`POST /api/auth/login` e `/api/auth/cadastro` devolvem `{ token, tipo, expiraEmSegundos, usuario }`). O interceptor de `api.ts` põe o token que o `SessaoContext` passou em `definirTokenDeAcesso`. Não há refresh token no MVP.
+- `SessaoContext` é a **única** fonte de verdade da sessão: token e usuário no AsyncStorage (`@antidoto:token`, `@antidoto:usuario`), com `sessao`, `carregando`, `entrar(resposta)` e `sair()`.
+- **Abertura do app (diferente do Afetto, de propósito):** a sessão salva vale **na hora**, sem esperar a rede — o SOS e os telefones úteis não podem depender da internet. A conferência com `GET /api/usuarios/me` (`queryClient.fetchQuery` na `CHAVE_USUARIO_LOGADO`) roda depois, em segundo plano:
+  - 401 → sai (token vencido ou recusado);
+  - sem internet ou servidor fora → **mantém** a sessão;
+  - usuário de outra conta → sai;
+  - deu certo → atualiza o usuário salvo (o nome pode ter mudado em outro aparelho).
+    Se a pessoa sair ou trocar de conta antes da resposta, a resposta é ignorada (`tokenAtual`).
+- **Entrar** (login e cadastro): grava token e usuário, passa o token ao `api.ts`, limpa o cache e já põe o usuário em `["usuario","me"]` (o Perfil abre sem esperar). O cadastro já entra, sem uma segunda chamada.
+- **401 numa chamada que levou o token** ⇒ o tratador registrado em `definirTratadorSessaoExpirada` limpa a sessão e o `<RotaProtegida>` manda para o login. **No login** (sem token), o 401 é só a mensagem "E-mail ou senha incorretos" (MVP-02 §3.4). O 403 não encerra a sessão.
+- **Logout** é local: o contrato não tem rota de logout (o JWT vive no aparelho). `sair()` apaga o AsyncStorage, tira o token do `api.ts` e faz `queryClient.clear()`; a tela vai para `/login`.
 - `RotaProtegida` nos layouts de `(tabs)` e `(app)`. A pasta `sos/` **não** é protegida (RN-G1).
-
----
 
 ## 10. Navegação
 
 - Toda navegação pelo `expo-router` (`router.push`, `router.replace`, `router.back`, `<Redirect>`).
+- Depois de entrar (login ou cadastro): `router.replace("/(tabs)")`. Depois de sair: `router.replace("/login")`.
 - Os grupos `(auth)`, `(tabs)` e `(app)` **não** aparecem na URL: `(auth)/login.tsx` é `/login`. A pasta `sos/` **aparece**: `/sos/triagem`.
 - **Rotas tipadas, sempre em forma de objeto:** `router.push({ pathname: "/sos/resultado", params: { tipoAnimal, faixaEtaria, sintomas: sintomas.join(","), horaPicada } })`. Nunca template literal + `as any`.
 - As definições das rotas ficam em `.expo/types/router.d.ts` (fora do Git), geradas pelo `npx expo start`: rode-o uma vez antes do `npx tsc --noEmit` num clone novo.
@@ -232,6 +275,7 @@ docs/                     ← pacote MVP (MVP-00, MVP-02) e o contrato docs/api/
 
 - Chamar HTTP dentro de uma página.
 - Usar `StyleSheet.create` (fora do reanimated) ou `#hex` em `style`; usar classe de cor sem confirmar que ela existe.
+- Redesenhar o logo, mudar as cores dele ou usar o PNG fora do `LogoAntidoto`.
 - Criar um segundo context de sessão.
 - Usar `any` sem justificativa em comentário; usar `as any` em rota.
 - Instalar biblioteca nova sem combinar com o time (no MVP, só `expo-location`).
@@ -259,24 +303,26 @@ docs/                     ← pacote MVP (MVP-00, MVP-02) e o contrato docs/api/
 
 ---
 
-## Ajustes em relação ao MVP-02 (decididos pelo time em 06 e 07/11)
+## Ajustes em relação ao MVP-02 e ao Afetto (decididos pelo time em 06 e 07/11)
 
-| No MVP-02                                                       | No código (como no Afetto)                                                                     |
-| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `(tabs)` dentro de `(app)`                                      | `(tabs)` na raiz, com a `RotaProtegida` no layout dela                                         |
-| Início em `(tabs)/inicio.tsx`                                   | `(tabs)/index.tsx`                                                                             |
-| `api/cliente.ts`                                                | `api/api.ts`                                                                                   |
-| `auth.service.ts`, `usuarios.service.ts`, services no plural    | `autenticacao.service.ts` e services no singular (`unidade`, `ocorrencia`, `avistamento`)      |
-| `useLogin`, `useCadastro`                                       | `useEntrar`, `useCadastrar` (em `useAutenticacao.ts`)                                          |
-| `useUsuarioLogado`, `useAtualizarUsuario`                       | mesmos nomes, em `usePerfil.ts`                                                                |
-| `utils/datas.ts`                                                | `utils/data.ts`                                                                                |
-| `types/enums.ts`, `usuario.ts`…                                 | `types/*.types.ts`                                                                             |
-| `EstadoVazio`, `EstadoErro`, `RotaProtegida` em `components/ui` | na raiz de `components/`                                                                       |
-| `rotuloTipoAnimal()` etc.                                       | constantes `LABEL_*` (como o `LABEL_ESPECIE` do Afetto); `ehSintomaDeAlerta()` continua função |
-| `extrairMensagemErro`, `extrairErrosDeCampo`                    | `mensagemDaApi`, `errosDeCampoDaApi` (nomes do `erros.ts` do Afetto)                           |
-| Hash por `EXPO_PUBLIC_COMMIT_HASH` definido no terminal         | `app.config.ts` lendo `EAS_BUILD_GIT_COMMIT_HASH` (ou o git)                                   |
-| Fonte padrão do sistema                                         | Inter em `assets/fonts` (a rubrica pede fontes personalizadas)                                 |
-| Nome "SOS Peçonha" (`sos-peconha-app`, `@sospeconha:token`)     | **Antídoto** (`antidoto-app`, `@antidoto:token`, `@antidoto:usuario`) — decisão de 07/11       |
+| No MVP-02                                                       | No código (como no Afetto)                                                                        |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `(tabs)` dentro de `(app)`                                      | `(tabs)` na raiz, com a `RotaProtegida` no layout dela                                            |
+| Início em `(tabs)/inicio.tsx`                                   | `(tabs)/index.tsx`                                                                                |
+| `api/cliente.ts`                                                | `api/api.ts`                                                                                      |
+| `auth.service.ts`, `usuarios.service.ts`, services no plural    | `autenticacao.service.ts` e services no singular (`unidade`, `ocorrencia`, `avistamento`)         |
+| `useLogin`, `useCadastro`                                       | `useEntrar`, `useCadastrar` (em `useAutenticacao.ts`)                                             |
+| `useUsuarioLogado`, `useAtualizarUsuario`                       | mesmos nomes, em `usePerfil.ts`                                                                   |
+| `utils/datas.ts`                                                | `utils/data.ts`                                                                                   |
+| `types/enums.ts`, `usuario.ts`…                                 | `types/*.types.ts`                                                                                |
+| `EstadoVazio`, `EstadoErro`, `RotaProtegida` em `components/ui` | na raiz de `components/`                                                                          |
+| `rotuloTipoAnimal()` etc.                                       | constantes `LABEL_*` (como o `LABEL_ESPECIE` do Afetto); `ehSintomaDeAlerta()` continua função    |
+| `extrairMensagemErro`, `extrairErrosDeCampo`                    | `mensagemDaApi`, `errosDeCampoDaApi` (nomes do `erros.ts` do Afetto)                              |
+| Hash por `EXPO_PUBLIC_COMMIT_HASH` definido no terminal         | `app.config.ts` lendo `EAS_BUILD_GIT_COMMIT_HASH` (ou o git)                                      |
+| Fonte padrão do sistema                                         | Inter em `assets/fonts` (a rubrica pede fontes personalizadas)                                    |
+| Paleta do §7 (`#1B5E20`, `#4C8C4A`, `#263238`)                  | Paleta da identidade visual (`#0B6E4F`, `#2BB673`, `#1E2A2F`); urgência e tema escuro seguem o §7 |
+| Revalidar a sessão antes de abrir o app (como no Afetto)        | Sessão salva vale na hora; conferência com a API em segundo plano (seção 9)                       |
+| Nome "SOS Peçonha" (`sos-peconha-app`, `@sospeconha:token`)     | **Antídoto** (`antidoto-app`, `@antidoto:token`, `@antidoto:usuario`) — decisão de 07/11          |
 
 ---
 

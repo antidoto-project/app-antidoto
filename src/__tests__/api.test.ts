@@ -1,7 +1,14 @@
+import { AxiosError, type AxiosAdapter, type AxiosResponse } from "axios";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
-import { api, definirUrlDaApi, TEMPO_LIMITE_API_MS } from "@/api/api";
+import {
+  api,
+  definirTokenDeAcesso,
+  definirTratadorSessaoExpirada,
+  definirUrlDaApi,
+  TEMPO_LIMITE_API_MS,
+} from "@/api/api";
 
 // O Expo informa o endereço do computador que roda o Metro (hostUri)
 jest.mock("expo-constants", () => ({
@@ -60,5 +67,67 @@ describe("cliente da API", () => {
     expect(api.defaults.baseURL).toBe("https://api.test.local");
     expect(api.defaults.timeout).toBe(10_000);
     expect(TEMPO_LIMITE_API_MS).toBe(10_000);
+  });
+});
+
+describe("sessão (JWT) no cliente", () => {
+  // Adaptador falso: responde com o status pedido e guarda o cabeçalho enviado
+  let authorizationEnviado: unknown;
+  function responderCom(status: number): AxiosAdapter {
+    return async (config) => {
+      authorizationEnviado = config.headers.Authorization;
+      const resposta = { status, statusText: "", headers: {}, config, data: {} } as AxiosResponse;
+      if (status < 400) return resposta;
+      throw new AxiosError("falhou", "ERR_BAD_REQUEST", config, null, resposta);
+    };
+  }
+
+  const tratador = jest.fn();
+
+  beforeEach(() => {
+    authorizationEnviado = undefined;
+    tratador.mockReset();
+    definirTratadorSessaoExpirada(tratador);
+  });
+
+  afterEach(() => {
+    definirTokenDeAcesso(null);
+    definirTratadorSessaoExpirada(null);
+  });
+
+  it("com sessão, manda Authorization: Bearer <token>", async () => {
+    definirTokenDeAcesso("token-da-ana");
+
+    await api.get("/api/usuarios/me", { adapter: responderCom(200) });
+
+    expect(authorizationEnviado).toBe("Bearer token-da-ana");
+  });
+
+  it("sem sessão, não manda Authorization", async () => {
+    await api.post("/api/auth/login", {}, { adapter: responderCom(200) });
+
+    expect(authorizationEnviado).toBeUndefined();
+  });
+
+  it("401 numa chamada com token: avisa que a sessão expirou", async () => {
+    definirTokenDeAcesso("token-vencido");
+
+    await expect(api.get("/api/usuarios/me", { adapter: responderCom(401) })).rejects.toThrow();
+
+    expect(tratador).toHaveBeenCalledTimes(1);
+  });
+
+  it("401 sem token (o próprio login): não encerra nada, a tela trata", async () => {
+    await expect(api.post("/api/auth/login", {}, { adapter: responderCom(401) })).rejects.toThrow();
+
+    expect(tratador).not.toHaveBeenCalled();
+  });
+
+  it("403 com token não é sessão expirada", async () => {
+    definirTokenDeAcesso("token-da-ana");
+
+    await expect(api.get("/api/avistamentos/7", { adapter: responderCom(403) })).rejects.toThrow();
+
+    expect(tratador).not.toHaveBeenCalled();
   });
 });

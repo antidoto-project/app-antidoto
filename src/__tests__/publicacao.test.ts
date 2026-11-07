@@ -1,5 +1,11 @@
+import { existsSync } from "fs";
+import { join } from "path";
+
 // Configuração que a publicação (Passo 8) e o Firebase App Distribution usam
 const appJson = require("../../app.json");
+// O tailwind.config.js é CommonJS (o NativeWind lê com require)
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const configTailwind = require("../../tailwind.config.js");
 
 describe("app.json", () => {
   it("nome Antídoto e pacote Android no padrão do professor (br.fiap.mad.<nome>)", () => {
@@ -9,5 +15,24 @@ describe("app.json", () => {
 
   it("rotas tipadas ligadas (o tsc confere cada router.push)", () => {
     expect(appJson.expo.experiments.typedRoutes).toBe(true);
+  });
+});
+
+describe("identidade visual no app.json", () => {
+  const { icon, splash, android, web } = appJson.expo;
+
+  it("ícone, ícone adaptativo, splash e favicon apontam para arquivos que existem", () => {
+    const arquivos = [icon, splash.image, android.adaptiveIcon.foregroundImage, web.favicon];
+
+    arquivos.forEach((arquivo: string) => {
+      expect(existsSync(join(__dirname, "../..", arquivo))).toBe(true);
+    });
+  });
+
+  it("splash no creme e fundo do ícone no verde escuro da paleta", () => {
+    const cores = configTailwind.theme.extend.colors;
+
+    expect(splash.backgroundColor).toBe(cores.fundo);
+    expect(android.adaptiveIcon.backgroundColor).toBe(cores.marca);
   });
 });

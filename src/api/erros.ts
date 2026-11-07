@@ -87,3 +87,33 @@ export function errosDeCampoDaApi(error: unknown): Record<string, string> {
   }
   return erros;
 }
+
+/** O que a tela faz com um erro da API num formulário (MVP-02 §5.1). */
+export type ErrosNoFormulario<Campo extends string> = {
+  /** Vai para o `setError` de cada campo. */
+  porCampo: { campo: Campo; mensagem: string }[];
+  /** Vai para o `setError("root")`; `null` quando todos os erros caíram em campos. */
+  geral: string | null;
+};
+
+/**
+ * Divide o erro da API entre os campos do formulário e a mensagem geral: no 400,
+ * cada item de `campos[]` com um campo que existe na tela vai para o campo; o
+ * resto (campo que a tela não tem, 409, 500, sem conexão...) vira a mensagem geral.
+ */
+export function errosDaApiNoFormulario<Campo extends string>(
+  error: unknown,
+  camposDaTela: readonly Campo[]
+): ErrosNoFormulario<Campo> {
+  const porCampo: { campo: Campo; mensagem: string }[] = [];
+  let semCampoNaTela: string | null = null;
+
+  for (const [campo, mensagem] of Object.entries(errosDeCampoDaApi(error))) {
+    const daTela = camposDaTela.find((nome) => nome === campo);
+    if (daTela) porCampo.push({ campo: daTela, mensagem });
+    else semCampoNaTela ??= mensagem;
+  }
+
+  const geral = semCampoNaTela ?? (porCampo.length === 0 ? mensagemDaApi(error) : null);
+  return { porCampo, geral };
+}

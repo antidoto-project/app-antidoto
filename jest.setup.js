@@ -15,7 +15,8 @@ jest.mock("react-native-reanimated", () => {
   };
 });
 
-// expo-router: stub da API imperativa de navegação.
+// expo-router: stub da API imperativa de navegação. O <Redirect> não renderiza
+// nada; o teste confere para onde ele mandaria (props do mock).
 jest.mock("expo-router", () => ({
   router: {
     replace: jest.fn(),
@@ -23,4 +24,10 @@ jest.mock("expo-router", () => ({
     back: jest.fn(),
     navigate: jest.fn(),
   },
+  Redirect: jest.fn(() => null),
 }));
+
+// AsyncStorage em memória (mock oficial da biblioteca), para a sessão nos testes.
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock")
+);

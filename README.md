@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="assets/images/antidoto-logo-horizontal.png" alt="Antídoto" width="320" />
+</p>
+
+<p align="center"><em>Do susto ao soro certo.</em></p>
+
 # Antídoto
 
 > App mobile (React Native + Expo) do MVP da **Global Solution 2026/2 — FIAP**, tema **CitizenTech**.
@@ -20,7 +26,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 | Passo | O que entra                                                                                                                                   | Situação |
 | ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | 1     | Base do projeto: Expo + expo-router, NativeWind com a identidade visual, fonte Inter, camada da API, enums e rótulos, ESLint + Prettier, Jest | ✅       |
-| 2     | Login, cadastro, abas e logout                                                                                                                | ⏳       |
+| 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅       |
 | 3     | Triagem e resultado (urgência no app)                                                                                                         | ⏳       |
 | 4     | Unidades próximas e primeiros socorros                                                                                                        | ⏳       |
 | 5     | CRUD de avistamentos                                                                                                                          | ⏳       |
@@ -32,7 +38,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 
 ## 🛠️ Tecnologias
 
-Expo 54 · React Native 0.81 · TypeScript · expo-router (rotas tipadas) · NativeWind (Tailwind) · TanStack Query · axios · react-hook-form + zod · Jest + Testing Library · ESLint + Prettier.
+Expo 54 · React Native 0.81 · TypeScript · expo-router (rotas tipadas) · NativeWind (Tailwind) · TanStack Query · axios · react-hook-form + zod · AsyncStorage · Jest + Testing Library · ESLint + Prettier.
 
 O app consome **só a API Java** do projeto, pelo contrato [`docs/api/openapi-mvp.yaml`](docs/api/openapi-mvp.yaml).
 
@@ -69,14 +75,20 @@ npm test           # testes (Jest)
 
 ```
 src/
-├── api/        cliente da API (axios), erros, paginação, QueryClient
-├── app/        telas e rotas (expo-router)
-├── types/      enums do contrato
-├── utils/      funções puras: rótulos, datas, versão
-├── testes/     apoio aos testes
-└── __tests__/  testes
-assets/fonts/   fonte Inter (licença OFL)
-docs/           pacote do MVP e contrato da API
+├── api/         cliente da API (axios + JWT), erros, paginação, QueryClient
+├── app/         telas e rotas (expo-router): login, cadastro, Início, Perfil
+├── components/  componentes de tela e de formulário
+├── context/     sessão (token e usuário)
+├── hooks/       dados (TanStack Query)
+├── schemas/     validação dos formulários (zod)
+├── services/    chamadas à API
+├── types/       enums e tipos do contrato
+├── utils/       funções puras: rótulos, datas, máscaras, telefones, versão
+├── testes/      apoio aos testes
+└── __tests__/   testes
+assets/fonts/    fonte Inter (licença OFL)
+assets/images/   logo, ícone e splash
+docs/            pacote do MVP e contrato da API
 ```
 
 As convenções do projeto estão no [`CLAUDE.md`](CLAUDE.md).
