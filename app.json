@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Antídoto",
+    "slug": "antidoto",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "antidoto",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "br.fiap.mad.antidoto",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router", "expo-font"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

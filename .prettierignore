@@ -1,0 +1,7 @@
+node_modules/
+.expo/
+dist/
+package-lock.json
+assets/
+# Documentos do pacote MVP: ficam como foram combinados com o time
+docs/
