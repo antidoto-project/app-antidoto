@@ -1,9 +1,10 @@
 import { ScrollView, Text, View } from "react-native";
 
+import { BotaoSos } from "@/components/sos/BotaoSos";
 import { TelefonesUteis } from "@/components/sos/TelefonesUteis";
 import { useSessao } from "@/context/SessaoContext";
 
-/** T6 — Início. O botão SOS e os atalhos entram nos próximos passos. */
+/** T6 — Início: o botão SOS e os telefones úteis. Os atalhos entram com Avistamentos e Ocorrências. */
 export default function TelaInicio() {
   const { sessao } = useSessao();
   const primeiroNome = sessao?.usuario.nome.trim().split(/\s+/)[0] ?? "";
@@ -23,6 +24,13 @@ export default function TelaInicio() {
       </View>
 
       <View className="gap-6 px-5 py-6">
+        <View className="items-center gap-3 rounded-3xl bg-white px-5 py-6 dark:bg-gray-800">
+          <BotaoSos />
+          <Text className="text-center font-inter text-base text-texto dark:text-texto-escuro">
+            Você ou alguém foi picado? Toque no SOS.
+          </Text>
+        </View>
+
         <TelefonesUteis />
       </View>
     </ScrollView>

@@ -10,6 +10,7 @@ import {
 } from "@/types/enums.types";
 import {
   ehSintomaDeAlerta,
+  IDADE_FAIXA_ETARIA,
   LABEL_FAIXA_ETARIA,
   LABEL_LOCAL_AVISTAMENTO,
   LABEL_SINTOMA,
@@ -49,6 +50,7 @@ describe("rótulos dos enums", () => {
   it.each([
     ["tipo de animal", TIPOS_ANIMAL, LABEL_TIPO_ANIMAL],
     ["faixa etária", FAIXAS_ETARIAS, LABEL_FAIXA_ETARIA],
+    ["idade da faixa etária", FAIXAS_ETARIAS, IDADE_FAIXA_ETARIA],
     ["urgência", URGENCIAS, LABEL_URGENCIA],
     ["soro", TIPOS_SORO, LABEL_SORO],
     ["tipo de unidade", TIPOS_UNIDADE, LABEL_TIPO_UNIDADE],

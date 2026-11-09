@@ -5,6 +5,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 import { classificarErro, errosDaApiNoFormulario } from "@/api/erros";
 import { LogoAntidoto } from "@/components/LogoAntidoto";
+import { BotaoSos } from "@/components/sos/BotaoSos";
 import { BotaoEnviar } from "@/components/ui/BotaoEnviar";
 import CampoTexto from "@/components/ui/CampoTexto";
 import { TelaFormulario } from "@/components/ui/TelaFormulario";
@@ -12,7 +13,7 @@ import { useSessao } from "@/context/SessaoContext";
 import { useEntrar } from "@/hooks/useAutenticacao";
 import { CAMPOS_LOGIN, LoginSchema, type LoginInput } from "@/schemas/login.schema";
 
-/** T1 — Login. O botão "SOS — Fui picado" entra aqui no Passo 3, junto com a triagem. */
+/** T1 — Login, com o botão "SOS — Fui picado" no topo: a triagem não precisa de conta (RN-G1). */
 export default function TelaLogin() {
   const { entrar } = useSessao();
 
@@ -50,7 +51,17 @@ export default function TelaLogin() {
 
   return (
     <TelaFormulario
-      topo={<LogoAntidoto />}
+      topo={
+        <View className="gap-6">
+          <LogoAntidoto />
+          <View className="items-center gap-3 rounded-3xl bg-white px-5 py-6 dark:bg-gray-800">
+            <BotaoSos />
+            <Text className="text-center font-inter text-base text-texto dark:text-texto-escuro">
+              Foi picado agora? Toque no SOS.{"\n"}Não precisa de conta.
+            </Text>
+          </View>
+        </View>
+      }
       titulo={"Entre na sua\nconta"}
       subtitulo="Para registrar ocorrências e avistamentos."
       erro={errors.root?.message}

@@ -16,7 +16,8 @@ jest.mock("react-native-reanimated", () => {
 });
 
 // expo-router: stub da API imperativa de navegação. O <Redirect> não renderiza
-// nada; o teste confere para onde ele mandaria (props do mock).
+// nada; o teste confere para onde ele mandaria (props do mock). Os params da
+// rota vêm do useLocalSearchParams, que cada teste define.
 jest.mock("expo-router", () => ({
   router: {
     replace: jest.fn(),
@@ -25,9 +26,18 @@ jest.mock("expo-router", () => ({
     navigate: jest.fn(),
   },
   Redirect: jest.fn(() => null),
+  useLocalSearchParams: jest.fn(() => ({})),
 }));
 
 // AsyncStorage em memória (mock oficial da biblioteca), para a sessão nos testes.
 jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock")
 );
+
+// expo-font: nos testes, toda fonte já conta como carregada. Sem isso, cada ícone
+// (Ionicons) que aparece depois do primeiro render carrega a fonte sozinho e o
+// React avisa "An update to Icon inside a test was not wrapped in act(...)".
+jest.mock("expo-font", () => ({
+  ...jest.requireActual("expo-font"),
+  isLoaded: jest.fn(() => true),
+}));

@@ -27,7 +27,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 | ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | 1     | Base do projeto: Expo + expo-router, NativeWind com a identidade visual, fonte Inter, camada da API, enums e rótulos, ESLint + Prettier, Jest | ✅       |
 | 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅       |
-| 3     | Triagem e resultado (urgência no app)                                                                                                         | ⏳       |
+| 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅       |
 | 4     | Unidades próximas e primeiros socorros                                                                                                        | ⏳       |
 | 5     | CRUD de avistamentos                                                                                                                          | ⏳       |
 | 6     | Ocorrência e resumo por IA                                                                                                                    | ⏳       |

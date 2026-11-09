@@ -64,11 +64,12 @@ function LayoutRaizNav() {
     <QueryClientProvider client={queryClient}>
       <SessaoProvider>
         <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-        {/* A pasta pública sos/ e o grupo (app) entram nos próximos passos */}
+        {/* sos/ é pública (RN-G1); o grupo (app) entra no Passo 5 */}
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="sos" />
         </Stack>
       </SessaoProvider>
     </QueryClientProvider>

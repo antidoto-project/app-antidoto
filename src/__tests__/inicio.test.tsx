@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
+import { router } from "expo-router";
 import { Linking } from "react-native";
 
 import TelaInicio from "@/app/(tabs)/index";
@@ -8,6 +9,7 @@ jest.mock("@/context/SessaoContext", () => ({
 }));
 
 beforeEach(() => {
+  jest.clearAllMocks();
   jest.restoreAllMocks();
 });
 
@@ -17,6 +19,14 @@ describe("TelaInicio (T6)", () => {
     render(<TelaInicio />);
 
     expect(await screen.findByText("Olá, Ana!")).toBeTruthy();
+  });
+
+  it("o SOS abre a triagem", async () => {
+    render(<TelaInicio />);
+
+    fireEvent.press(await screen.findByLabelText("SOS, fui picado"));
+
+    expect(router.push).toHaveBeenCalledWith("/sos/triagem");
   });
 
   it("telefones úteis (RN-G8) abrem o discador", async () => {

@@ -1,3 +1,4 @@
+import type { OpcaoHoraPicada } from "@/schemas/triagem.schema";
 import type {
   FaixaEtaria,
   LocalAvistamento,
@@ -23,10 +24,35 @@ export const LABEL_TIPO_ANIMAL: Record<TipoAnimal, string> = {
   NAO_SEI: "Não sei",
 };
 
+/** Figura de cada animal no SeletorAnimal (emoji, como o ICONE_ESPECIE do Afetto). */
+export const ICONE_TIPO_ANIMAL: Record<TipoAnimal, string> = {
+  ESCORPIAO: "🦂",
+  SERPENTE: "🐍",
+  ARANHA: "🕷️",
+  LAGARTA: "🐛",
+  ABELHA: "🐝",
+  NAO_SEI: "❓",
+};
+
 export const LABEL_FAIXA_ETARIA: Record<FaixaEtaria, string> = {
-  CRIANCA: "Criança (0–9)",
-  ADULTO: "Adulto (10–59)",
-  IDOSO: "Idoso (60+)",
+  CRIANCA: "Criança",
+  ADULTO: "Adulto",
+  IDOSO: "Idoso",
+};
+
+/** A idade de cada faixa (MVP-00 §4.1), embaixo do nome no seletor e no resumo. */
+export const IDADE_FAIXA_ETARIA: Record<FaixaEtaria, string> = {
+  CRIANCA: "0 a 9 anos",
+  ADULTO: "10 a 59 anos",
+  IDOSO: "60 anos ou mais",
+};
+
+/** Textos do MVP-02 §3.1 para "quando foi a picada". */
+export const LABEL_HORA_PICADA: Record<OpcaoHoraPicada, string> = {
+  AGORA: "Agora",
+  HA_1_HORA: "Há 1 hora",
+  HA_2_HORAS: "Há 2 horas",
+  HA_3_HORAS_OU_MAIS: "Há 3 horas ou mais",
 };
 
 export const LABEL_URGENCIA: Record<Urgencia, string> = {

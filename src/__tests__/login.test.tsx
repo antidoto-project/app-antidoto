@@ -110,6 +110,14 @@ describe("TelaLogin (T1)", () => {
     expect(screen.getByLabelText("Antídoto")).toBeTruthy();
   });
 
+  it("o SOS abre a triagem, sem precisar de conta (RN-G1)", async () => {
+    render(<TelaLogin />, { wrapper });
+
+    fireEvent.press(await screen.findByLabelText("SOS, fui picado"));
+
+    expect(router.push).toHaveBeenCalledWith("/sos/triagem");
+  });
+
   it("'Criar conta' abre o cadastro", () => {
     render(<TelaLogin />, { wrapper });
     fireEvent.press(screen.getByText("Criar conta"));
