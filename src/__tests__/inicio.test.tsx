@@ -29,6 +29,14 @@ describe("TelaInicio (T6)", () => {
     expect(router.push).toHaveBeenCalledWith("/sos/triagem");
   });
 
+  it("o atalho 'Registrar avistamento' abre o formulário", async () => {
+    render(<TelaInicio />);
+
+    fireEvent.press(await screen.findByText("Registrar avistamento"));
+
+    expect(router.push).toHaveBeenCalledWith("/avistamentos/novo");
+  });
+
   it("telefones úteis (RN-G8) abrem o discador", async () => {
     const abrir = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
     render(<TelaInicio />);

@@ -29,7 +29,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 | 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅       |
 | 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅       |
 | 4     | Unidades próximas com soro compatível (GPS, Ligar e Rota) e primeiros socorros                                                                | ✅       |
-| 5     | CRUD de avistamentos                                                                                                                          | ⏳       |
+| 5     | CRUD de avistamentos (aba Avistamentos, novo, editar e excluir com confirmação; localização pelo GPS)                                         | ✅       |
 | 6     | Ocorrência e resumo por IA                                                                                                                    | ⏳       |
 | 7     | Perfil e Sobre o App                                                                                                                          | ⏳       |
 | 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | ⏳       |

@@ -54,7 +54,7 @@ function ConteudoUnidades({
         <EstadoErro
           icone="location-outline"
           mensagem="Ative a localização para ver as unidades próximas"
-          onTentarNovamente={localizacao.tentarNovamente}
+          onTentarNovamente={localizacao.buscar}
         />
         {/* Negada de vez: o aparelho não pergunta de novo, só pelas configurações */}
         {!localizacao.podePedirDeNovo && (
@@ -79,7 +79,7 @@ function ConteudoUnidades({
         <EstadoErro
           icone="location-outline"
           mensagem="Não deu para achar a sua localização. Confira se o GPS está ligado."
-          onTentarNovamente={localizacao.tentarNovamente}
+          onTentarNovamente={localizacao.buscar}
         />
       </View>
     );

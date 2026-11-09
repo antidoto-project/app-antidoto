@@ -39,7 +39,7 @@ Este arquivo é o contrato de desenvolvimento do projeto: todo código gerado (p
 | Fonte             | **Inter** (`assets/fonts`, 3 pesos), carregada com `useFonts` do `expo-font` — sem biblioteca nova                                                                                                                                                            |
 | Assets            | `expo-asset`: vem com o Expo; declarado no `package.json` porque o `expo-font` o usa e o npm não o deixava na raiz do `node_modules` (o Jest não achava)                                                                                                      |
 | Versão instalada  | `expo-application` — `nativeBuildVersion` na tela Sobre o App (Passo 7)                                                                                                                                                                                       |
-| GPS               | `expo-location` `~19` — **única biblioteca nova** do MVP. A permissão é pedida só quando o resultado abre; o texto dela fica no plugin do `app.json`                                                                                                          |
+| GPS               | `expo-location` `~19` — **única biblioteca nova** do MVP. A permissão é pedida só quando o resultado abre ou quando a pessoa toca em "Usar minha localização"; o texto dela fica no plugin do `app.json`                                                      |
 | Testes            | `jest` + `jest-expo` + `@testing-library/react-native`. O `jest.setup.js` simula o `expo-router` (`router`, `<Redirect>`, `useLocalSearchParams`), o AsyncStorage em memória e as fontes já carregadas (sem isso, cada ícone novo gera o aviso de `act(...)`) |
 | Lint/formatação   | ESLint (`eslint-config-expo`) + Prettier (`.prettierrc`: 100 colunas, aspas duplas, ponto e vírgula)                                                                                                                                                          |
 
@@ -73,11 +73,12 @@ src/
 │   ├── index.tsx         ← porta de entrada: lendo a sessão → carregando; com sessão → Início; sem sessão → /login
 │   ├── (auth)/           ← login (T1: logo e botão SOS no topo), cadastro (T2)
 │   ├── sos/              ← PÚBLICA, logado ou não (RN-G1): _layout, triagem (T3, 3 passos), resultado (T4: urgência no aparelho, primeiros socorros e unidades próximas), primeiros-socorros/[tipoAnimal] (T5, conteúdo local)
-│   ├── (tabs)/           ← com <RotaProtegida>: index = Início (T6: botão SOS + telefones úteis), perfil (T9: dados + Sair). Passos 5–6: avistamentos (T7), ocorrencias (T8)
-│   └── (app)/            ← (Passo 5+) com <RotaProtegida>, em Stack: avistamentos/novo (T10), avistamentos/[id] (T11), ocorrencias/[id] (T12), sobre (T13)
+│   ├── (tabs)/           ← com <RotaProtegida>: index = Início (T6: SOS, atalho do avistamento, telefones úteis), avistamentos (T7: lista, editar, excluir), perfil (T9: dados + Sair). Passo 6: ocorrencias (T8)
+│   └── (app)/            ← com <RotaProtegida>, em Stack: avistamentos/novo (T10), avistamentos/[id] (T11). Passos 6–7: ocorrencias/[id] (T12), sobre (T13)
 ├── components/
 │   ├── ui/               ← CampoTexto, CampoSelecao (opções em botões; `colunas` 2 ou 3; `descricao` na 2ª linha), BotaoEnviar, TelaFormulario (prop `topo`)
 │   ├── sos/              ← BotaoSos, SeletorAnimal, ListaSintomas, SeloUrgencia, BotaoLigar192, AvisoAtendimento (RN-G2), ResumoTriagem, UnidadesProximas (GPS + API e os estados), CartaoUnidade (Ligar e Rota), TelefonesUteis (RN-G8)
+│   ├── avistamentos/     ← CartaoAvistamento, FormAvistamento (campos do novo e do editar, como o FormPet do Afetto), CampoLocalizacao ("Usar minha localização")
 │   ├── perfil/           ← DadosPessoaisCard, ContaCard (só da tela Perfil)
 │   ├── EstadoErro.tsx    ← erro com "Tentar novamente" (prop `icone`: a localização usa `location-outline`)
 │   ├── EstadoVazio.tsx   ← lista vazia (ex.: RN-S4)
@@ -89,24 +90,27 @@ src/
 │   ├── useAutenticacao.ts ← useEntrar, useCadastrar + CHAVE_USUARIO_LOGADO (["usuario","me"])
 │   ├── usePerfil.ts       ← useUsuarioLogado (Passo 7: useAtualizarUsuario)
 │   ├── useTriagem.ts      ← hook de tela da T3: passo, respostas, validação por passo, concluir(agora) → params do resultado
-│   ├── useLocalizacao.ts  ← hook de tela: permissão + GPS (estado buscando/negada/indisponivel/pronta, podePedirDeNovo, tentarNovamente)
+│   ├── useLocalizacao.ts  ← hook de tela: permissão + GPS (estado parada/buscando/negada/indisponivel/pronta, podePedirDeNovo, buscar). `automatica: false` = só no toque do botão
 │   ├── useUnidades.ts     ← useUnidadesProximas(coordenadas, tipoAnimal): só busca depois do GPS
 │   ├── useConteudo.ts     ← usePrimeirosSocorros(tipoAnimal), staleTime Infinity
-│   └── (Passo 5+)         ← useAvistamentos, useOcorrencias
-├── schemas/              ← login, cadastro (+ CAMPOS_LOGIN / CAMPOS_CADASTRO), triagem (OPCOES_HORA_PICADA, um schema por passo, criarParamsResultadoSchema com a RN-G4, ParamsPrimeirosSocorrosSchema). Passo 5+: avistamento, perfil
+│   ├── useAvistamentos.ts ← useMeusAvistamentos, useAvistamento, useCriarAvistamento, useAtualizarAvistamento, useExcluirAvistamento (invalidam ["avistamentos","meus"])
+│   └── (Passo 6)          ← useOcorrencias
+├── schemas/              ← login, cadastro (+ CAMPOS_LOGIN / CAMPOS_CADASTRO), triagem (OPCOES_HORA_PICADA, um schema por passo, criarParamsResultadoSchema com a RN-G4, ParamsPrimeirosSocorrosSchema), avistamento (localização obrigatória e no Brasil, observação até 500, CAMPOS_AVISTAMENTO). Passo 7: perfil
 ├── services/
 │   ├── autenticacao.service.ts ← autenticacaoService.{entrar, cadastrar, buscarUsuarioLogado}
 │   ├── unidade.service.ts      ← unidadeService.buscarProximas (GET /api/unidades/proximas, limite 5)
 │   ├── conteudo.service.ts     ← conteudoService.buscarPrimeirosSocorros: conteúdo LOCAL do MVP-02 §6 (⚠️ revisar com o Ministério da Saúde)
-│   └── (Passo 5+)              ← avistamento, ocorrencia (.service.ts)
+│   ├── avistamento.service.ts  ← avistamentoService.{listarMeus (até 50), buscarPorId, criar (dataHora = agora), atualizar (dataHora original), excluir, paraFormulario}
+│   └── (Passo 6)               ← ocorrencia.service.ts
 ├── types/
 │   ├── enums.types.ts    ← enums do contrato como listas `as const` + tipos (TipoAnimal, FaixaEtaria, Urgencia, TipoSoro, TipoUnidade, LocalAvistamento, StatusResumo, Perfil, Sintoma)
 │   ├── usuario.types.ts  ← Usuario, RespostaAutenticacao
 │   ├── unidade.types.ts  ← UnidadeProxima (schema do contrato), Coordenadas
-│   └── conteudo.types.ts ← PrimeirosSocorros (faca, naoFaca, atencao)
+│   ├── conteudo.types.ts ← PrimeirosSocorros (faca, naoFaca, atencao)
+│   └── avistamento.types.ts ← Avistamento, DadosAvistamento (schemas do contrato)
 ├── utils/
 │   ├── rotulos.ts        ← LABEL_* dos enums e da hora da picada, IDADE_FAIXA_ETARIA, ICONE_TIPO_ANIMAL (emoji), SINTOMAS_DE_ALERTA, ehSintomaDeAlerta
-│   ├── data.ts           ← converterDataParaBR, horaPorOpcao (opção da triagem → ISO), tempoDecorrido ("há 25 min"). Passo 6: formatarDataHora
+│   ├── data.ts           ← converterDataParaBR, horaPorOpcao (opção da triagem → ISO), tempoDecorrido ("há 25 min"), formatarDataHora (ISO → "DD/MM/AAAA HH:mm" no fuso do aparelho)
 │   ├── mascaras.ts       ← somenteDigitos, mascararTelefone
 │   ├── telefones.ts      ← TELEFONES_UTEIS (RN-G8: 192, 193, 0800 722 6001)
 │   ├── links.ts          ← linkLigar (tel:, só dígitos), linkRota (Google Maps pelas coordenadas)
@@ -179,7 +183,8 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 - Um bloco que aparece em mais de uma tela → componente. Um bloco com mais de ~40 linhas de JSX → avaliar extração.
 - Componentes genéricos em `components/ui/`; os de um domínio em `components/sos/`, `components/avistamentos/`, `components/ocorrencias/`; `EstadoVazio`, `EstadoErro` e `RotaProtegida` na raiz de `components/` (como no Afetto).
 - Já existem (MVP-02 §4): `BotaoSos`, `SeletorAnimal`, `ListaSintomas`, `SeloUrgencia`, `BotaoLigar192`, `AvisoAtendimento`, `CartaoUnidade`, mais o `ResumoTriagem` e o `UnidadesProximas`. A faixa etária e a hora da picada usam o `CampoSelecao` (do Afetto), no lugar do `SeletorFaixaEtaria` do MVP-02.
-- Ainda vêm: `CartaoAvistamento` (Passo 5), `CartaoOcorrencia` e `CartaoResumo` (Passo 6).
+- Avistamentos: `CartaoAvistamento`, `FormAvistamento` (os campos, usados no novo e no editar) e `CampoLocalizacao`. O `SeletorAnimal` serve à triagem e ao avistamento (prop `label`).
+- Ainda vêm: `CartaoOcorrencia` e `CartaoResumo` (Passo 6).
 
 ---
 
@@ -204,6 +209,7 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 - **RN-G2:** o texto fixo "Procure atendimento médico imediatamente." (`AvisoAtendimento`) aparece no resultado (T4), nos primeiros socorros (T5) e na ocorrência (T12).
 - **RN-G3:** em `EMERGENCIA`, o `BotaoLigar192` fica **no topo**, antes de tudo. Nos outros níveis, no fim da tela.
 - **Unidades no resultado:** GPS negado → "Ative a localização para ver as unidades próximas" + "Tentar novamente" (negada de vez: "Abrir as configurações"); GPS sem sinal em 15 s → pede para conferir o GPS; erro da API → `EstadoErro`; lista vazia → RN-S4. Nenhuma dessas falhas esconde a urgência, o 192 ou os primeiros socorros.
+- **Excluir** sempre com confirmação (`Alert.alert`, como no Afetto). O `Alert` do React Native não aparece no navegador: teste a exclusão no celular.
 - **Nunca** mostrar "sem urgência", "não é perigoso", dose ou remédio.
 - **Acessibilidade:** alvo de toque com 48 dp ou mais, `accessibilityLabel` em todo botão com ícone, contraste alto.
 - Segurança de área no topo: padding fixo nos cabeçalhos (`pt-14`), como no Afetto.

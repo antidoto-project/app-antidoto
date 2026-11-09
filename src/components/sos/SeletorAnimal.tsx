@@ -4,19 +4,26 @@ import { TIPOS_ANIMAL, type TipoAnimal } from "@/types/enums.types";
 import { ICONE_TIPO_ANIMAL, LABEL_TIPO_ANIMAL } from "@/utils/rotulos";
 
 type Props = {
+  /** Título acima dos cartões (no avistamento); a triagem já tem o título da tela. */
+  label?: string;
   value?: TipoAnimal;
   onChange: (value: TipoAnimal) => void;
   error?: string;
 };
 
 /**
- * Passo 1 da triagem: cartões grandes com a figura de cada animal, dois por
- * linha (alvo de toque grande, para quem está nervoso). Mesmo desenho do
- * SeletorEspecie do Afetto.
+ * Cartões grandes com a figura de cada animal, dois por linha (alvo de toque
+ * grande, para quem está nervoso): passo 1 da triagem e formulário de
+ * avistamento. Mesmo desenho do SeletorEspecie do Afetto.
  */
-export function SeletorAnimal({ value, onChange, error }: Props) {
+export function SeletorAnimal({ label, value, onChange, error }: Props) {
   return (
     <View className="gap-2">
+      {label && (
+        <Text className="font-inter-semibold text-base text-texto dark:text-texto-escuro">
+          {label}
+        </Text>
+      )}
       <View accessibilityRole="radiogroup" className="flex-row flex-wrap justify-between gap-y-3">
         {TIPOS_ANIMAL.map((animal) => {
           const selecionado = value === animal;

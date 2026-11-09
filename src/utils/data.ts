@@ -34,3 +34,13 @@ export function tempoDecorrido(iso: string, agora: Date): string {
   const dias = Math.floor(horas / 24);
   return dias === 1 ? "há 1 dia" : `há ${dias} dias`;
 }
+
+/** ISO-8601 → "DD/MM/AAAA HH:mm" no fuso do aparelho (a API manda em UTC). */
+export function formatarDataHora(iso: string): string {
+  const data = new Date(iso);
+  const doisDigitos = (numero: number) => String(numero).padStart(2, "0");
+  return (
+    `${doisDigitos(data.getDate())}/${doisDigitos(data.getMonth() + 1)}/${data.getFullYear()} ` +
+    `${doisDigitos(data.getHours())}:${doisDigitos(data.getMinutes())}`
+  );
+}
