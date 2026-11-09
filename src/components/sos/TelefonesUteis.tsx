@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Linking, Text, TouchableOpacity, View } from "react-native";
 
-import { linkLigar, TELEFONES_UTEIS } from "@/utils/telefones";
+import { linkLigar } from "@/utils/links";
+import { TELEFONES_UTEIS } from "@/utils/telefones";
 
 /**
- * Telefones úteis (RN-G8): cada linha abre o discador. Fica no Início e, no
- * Passo 4, também nos primeiros socorros.
+ * Telefones úteis (RN-G8): cada linha abre o discador. Fica no Início e nos
+ * primeiros socorros (T5).
  */
 export function TelefonesUteis() {
   return (

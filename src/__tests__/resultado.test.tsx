@@ -1,8 +1,17 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { Linking } from "react-native";
 
 import TelaResultado from "@/app/sos/resultado";
+
+// As unidades (GPS + API) têm teste próprio (unidades.test.tsx): aqui, só o que a tela passa
+const mockUnidades = jest.fn();
+jest.mock("@/components/sos/UnidadesProximas", () => ({
+  UnidadesProximas: (props: unknown) => {
+    mockUnidades(props);
+    return null;
+  },
+}));
 
 const mockParams = useLocalSearchParams as jest.Mock;
 const mockRedirect = Redirect as unknown as jest.Mock;
@@ -97,6 +106,24 @@ describe("TelaResultado (T4)", () => {
     fireEvent.press(await screen.findByLabelText("Ligar 192, SAMU"));
 
     expect(abrir).toHaveBeenCalledWith("tel:192");
+  });
+
+  it("mostra as unidades do animal e abre os primeiros socorros dele", async () => {
+    mockParams.mockReturnValue({
+      tipoAnimal: "LAGARTA",
+      faixaEtaria: "ADULTO",
+      sintomas: "",
+      horaPicada: isoHa(MINUTO),
+    });
+
+    render(<TelaResultado />);
+    fireEvent.press(await screen.findByText("O que fazer agora: primeiros socorros"));
+
+    expect(mockUnidades).toHaveBeenCalledWith({ tipoAnimal: "LAGARTA" });
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: "/sos/primeiros-socorros/[tipoAnimal]",
+      params: { tipoAnimal: "LAGARTA" },
+    });
   });
 
   it("params que faltam ou fora do contrato: volta para a triagem", () => {

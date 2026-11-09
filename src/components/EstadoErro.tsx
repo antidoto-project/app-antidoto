@@ -4,13 +4,19 @@ import { Text, TouchableOpacity, View } from "react-native";
 type Props = {
   mensagem: string;
   onTentarNovamente: () => void;
+  /** Padrão: nuvem sem conexão. A localização usa `location-outline`. */
+  icone?: React.ComponentProps<typeof Ionicons>["name"];
 };
 
 /** Estado de erro padrão para telas com dados remotos (mesmo componente do Afetto). */
-export function EstadoErro({ mensagem, onTentarNovamente }: Props) {
+export function EstadoErro({
+  mensagem,
+  onTentarNovamente,
+  icone = "cloud-offline-outline",
+}: Props) {
   return (
     <View className="flex-1 items-center justify-center gap-3 bg-fundo px-8 dark:bg-fundo-escuro">
-      <Ionicons name="cloud-offline-outline" size={48} color="#6B7280" />
+      <Ionicons name={icone} size={48} color="#6B7280" />
       <Text className="text-center font-inter text-base text-texto dark:text-texto-escuro">
         {mensagem}
       </Text>

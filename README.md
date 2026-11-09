@@ -28,7 +28,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 | 1     | Base do projeto: Expo + expo-router, NativeWind com a identidade visual, fonte Inter, camada da API, enums e rótulos, ESLint + Prettier, Jest | ✅       |
 | 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅       |
 | 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅       |
-| 4     | Unidades próximas e primeiros socorros                                                                                                        | ⏳       |
+| 4     | Unidades próximas com soro compatível (GPS, Ligar e Rota) e primeiros socorros                                                                | ✅       |
 | 5     | CRUD de avistamentos                                                                                                                          | ⏳       |
 | 6     | Ocorrência e resumo por IA                                                                                                                    | ⏳       |
 | 7     | Perfil e Sobre o App                                                                                                                          | ⏳       |
@@ -38,7 +38,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 
 ## 🛠️ Tecnologias
 
-Expo 54 · React Native 0.81 · TypeScript · expo-router (rotas tipadas) · NativeWind (Tailwind) · TanStack Query · axios · react-hook-form + zod · AsyncStorage · Jest + Testing Library · ESLint + Prettier.
+Expo 54 · React Native 0.81 · TypeScript · expo-router (rotas tipadas) · NativeWind (Tailwind) · TanStack Query · axios · react-hook-form + zod · AsyncStorage · expo-location · Jest + Testing Library · ESLint + Prettier.
 
 O app consome **só a API Java** do projeto, pelo contrato [`docs/api/openapi-mvp.yaml`](docs/api/openapi-mvp.yaml).
 
@@ -59,6 +59,8 @@ npx expo start
 | Java ainda não pronto: mock do contrato | `http://<ip do computador>:4010`, com `npx @stoplight/prism-cli mock -h 0.0.0.0 docs/api/openapi-mvp.yaml` rodando |
 | Java rodando no computador (porta 8080) | deixe comentado: o app acha o computador sozinho                                                                   |
 | Java na Azure                           | `https://<app>.azurewebsites.net`                                                                                  |
+
+Trocou o `.env`? Reinicie com `npx expo start --clear` (o Expo guarda o endereço antigo em cache).
 
 Nenhuma chave de API fica no app: só o endereço.
 

@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Linking, Text, TouchableOpacity } from "react-native";
 
-import { linkLigar } from "@/utils/telefones";
+import { linkLigar } from "@/utils/links";
 
 /**
  * "Ligar 192 (SAMU)" — abre o discador. RN-G3: em EMERGENCIA fica no topo do

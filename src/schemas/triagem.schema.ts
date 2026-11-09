@@ -59,3 +59,8 @@ export function criarParamsResultadoSchema(agora: Date) {
 }
 
 export type ParamsResultado = z.infer<ReturnType<typeof criarParamsResultadoSchema>>;
+
+/** O param da tela de primeiros socorros (T5): o animal, como na triagem. */
+export const ParamsPrimeirosSocorrosSchema = z.object({
+  tipoAnimal: z.enum(TIPOS_ANIMAL),
+});

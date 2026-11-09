@@ -30,7 +30,16 @@
       "output": "static",
       "favicon": "./assets/images/antidoto-icone-app.png"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O Antídoto usa a sua localização para mostrar as unidades de saúde mais próximas com o soro certo."
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }

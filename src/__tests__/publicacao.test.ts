@@ -36,3 +36,13 @@ describe("identidade visual no app.json", () => {
     expect(android.adaptiveIcon.backgroundColor).toBe(cores.marca);
   });
 });
+
+describe("localização (Passo 4)", () => {
+  it("o plugin do expo-location explica por que o app pede a localização", () => {
+    const plugin = appJson.expo.plugins.find(
+      (item: unknown) => Array.isArray(item) && item[0] === "expo-location"
+    );
+
+    expect(plugin?.[1].locationWhenInUsePermission).toMatch(/unidades de saúde/);
+  });
+});

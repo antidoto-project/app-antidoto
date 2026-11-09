@@ -14,6 +14,7 @@ export default function LayoutSos() {
     <Stack screenOptions={opcoesCabecalhoNativo(colorScheme === "dark")}>
       <Stack.Screen name="triagem" options={{ title: "" }} />
       <Stack.Screen name="resultado" options={{ title: "" }} />
+      <Stack.Screen name="primeiros-socorros/[tipoAnimal]" options={{ title: "" }} />
     </Stack>
   );
 }

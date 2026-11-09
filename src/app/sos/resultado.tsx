@@ -1,18 +1,21 @@
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { AvisoAtendimento } from "@/components/sos/AvisoAtendimento";
 import { BotaoLigar192 } from "@/components/sos/BotaoLigar192";
 import { ResumoTriagem } from "@/components/sos/ResumoTriagem";
 import { SeloUrgencia } from "@/components/sos/SeloUrgencia";
+import { UnidadesProximas } from "@/components/sos/UnidadesProximas";
 import { criarParamsResultadoSchema } from "@/schemas/triagem.schema";
 import { calcularUrgencia } from "@/utils/urgencia";
 
 /**
  * T4 — Resultado do SOS. A urgência é calculada AQUI, no aparelho (RN-U):
- * aparece mesmo sem internet. As unidades próximas, os primeiros socorros e o
- * "Registrar ocorrência" entram nos Passos 4 e 6.
+ * aparece mesmo sem internet, assim como os primeiros socorros (conteúdo local).
+ * Só as unidades próximas dependem do GPS e da API. O "Registrar ocorrência"
+ * entra no Passo 6.
  */
 export default function TelaResultado() {
   const params = useLocalSearchParams();
@@ -57,6 +60,22 @@ export default function TelaResultado() {
           ))}
         </View>
       </View>
+
+      <TouchableOpacity
+        onPress={() =>
+          router.push({ pathname: "/sos/primeiros-socorros/[tipoAnimal]", params: { tipoAnimal } })
+        }
+        activeOpacity={0.85}
+        accessibilityRole="button"
+        className="min-h-[56px] flex-row items-center justify-center gap-3 rounded-2xl bg-marca px-5 py-4"
+      >
+        <Ionicons name="medkit-outline" size={22} color="#FFFFFF" />
+        <Text className="font-inter-semibold text-base text-white">
+          O que fazer agora: primeiros socorros
+        </Text>
+      </TouchableOpacity>
+
+      <UnidadesProximas tipoAnimal={tipoAnimal} />
 
       <ResumoTriagem
         tipoAnimal={tipoAnimal}
