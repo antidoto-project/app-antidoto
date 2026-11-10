@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 
@@ -10,11 +10,18 @@ import { TelaFormulario } from "@/components/ui/TelaFormulario";
 import { useSessao } from "@/context/SessaoContext";
 import { useCadastrar } from "@/hooks/useAutenticacao";
 import { CadastroSchema, CAMPOS_CADASTRO, type CadastroInput } from "@/schemas/cadastro.schema";
+import { RetornoAoResultadoSchema } from "@/schemas/triagem.schema";
 import { mascararTelefone } from "@/utils/mascaras";
 
-/** T2 — Cadastro. A API já devolve o token: a conta é criada e a pessoa entra direto. */
+/**
+ * T2 — Cadastro. A API já devolve o token: a conta é criada e a pessoa entra
+ * direto. Se veio do "Entre para salvar a ocorrência" (pelo login), volta para
+ * o resultado com as respostas da triagem.
+ */
 export default function TelaCadastro() {
   const { entrar } = useSessao();
+  const leituraRetorno = RetornoAoResultadoSchema.safeParse(useLocalSearchParams());
+  const retorno = leituraRetorno.success ? leituraRetorno.data : null;
 
   const {
     control,
@@ -33,7 +40,9 @@ export default function TelaCadastro() {
     enviarCadastro(dados, {
       onSuccess: async (resposta) => {
         await entrar(resposta);
-        router.replace("/(tabs)");
+        // Volta ao resultado que já estava aberto (sem empilhar outro igual)
+        if (retorno) router.dismissTo({ pathname: "/sos/resultado", params: retorno });
+        else router.replace("/(tabs)");
       },
       // 400: cada campo recusado mostra a mensagem da API; 409 (e-mail já
       // cadastrado), sem conexão etc.: a mensagem vai embaixo do formulário

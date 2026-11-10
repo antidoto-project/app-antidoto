@@ -24,6 +24,8 @@ type DadosSessaoContexto = {
   entrar: (resposta: RespostaAutenticacao) => Promise<void>;
   /** Apaga a sessão do aparelho e o cache. Não há rota de logout: o JWT é do aparelho. */
   sair: () => Promise<void>;
+  /** Troca o usuário salvo depois de editar o Perfil (o Início mostra o nome novo). */
+  atualizarPerfil: (usuario: Usuario) => Promise<void>;
 };
 
 const SessaoContext = createContext<DadosSessaoContexto>({} as DadosSessaoContexto);
@@ -138,8 +140,15 @@ export function SessaoProvider({ children }: { children: ReactNode }) {
     setSessao({ token, usuario });
   }
 
+  async function atualizarPerfil(usuario: Usuario) {
+    // Só o dono da sessão: se ela acabou (ou mudou de conta) no meio, não ressuscita
+    if (!sessao || sessao.usuario.id !== usuario.id) return;
+    await AsyncStorage.setItem(CHAVE_USUARIO, JSON.stringify(usuario));
+    setSessao({ token: sessao.token, usuario });
+  }
+
   return (
-    <SessaoContext.Provider value={{ sessao, carregando, entrar, sair: limpar }}>
+    <SessaoContext.Provider value={{ sessao, carregando, entrar, sair: limpar, atualizarPerfil }}>
       {children}
     </SessaoContext.Provider>
   );

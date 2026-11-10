@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Linking, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Linking, Text, TouchableOpacity, View } from "react-native";
 
 import type { UnidadeProxima } from "@/types/unidade.types";
 import { linkLigar, linkRota } from "@/utils/links";
@@ -10,10 +10,20 @@ type Props = {
   unidade: UnidadeProxima;
   /** Abelha: não existe soro; vale qualquer hospital ou UPA (MVP-00 §4.4). */
   semSoro: boolean;
+  /** Logado: "Vou para esta unidade" registra a ocorrência com ela (MVP-02 §3.2). */
+  onEscolher?: () => void;
+  escolhendo?: boolean;
+  bloqueado?: boolean;
 };
 
 /** Uma unidade próxima no resultado (T4): distância, soros compatíveis, Ligar e Rota. */
-export function CartaoUnidade({ unidade, semSoro }: Props) {
+export function CartaoUnidade({
+  unidade,
+  semSoro,
+  onEscolher,
+  escolhendo = false,
+  bloqueado = false,
+}: Props) {
   const { nome, tipo, atende24h, distanciaKm, endereco, telefone, sorosCompativeis } = unidade;
 
   return (
@@ -75,6 +85,30 @@ export function CartaoUnidade({ unidade, semSoro }: Props) {
           <Text className="font-inter-semibold text-base text-white">Rota</Text>
         </TouchableOpacity>
       </View>
+
+      {onEscolher && (
+        <TouchableOpacity
+          onPress={onEscolher}
+          disabled={bloqueado}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel={`Vou para ${nome}`}
+          accessibilityHint="Registra a ocorrência com esta unidade"
+          accessibilityState={{ disabled: bloqueado, busy: escolhendo }}
+          className={`min-h-[48px] flex-row items-center justify-center gap-2 rounded-2xl border border-marca dark:border-marca-claro ${
+            bloqueado && !escolhendo ? "opacity-50" : ""
+          }`}
+        >
+          {escolhendo ? (
+            <ActivityIndicator color="#0B6E4F" />
+          ) : (
+            <Ionicons name="checkmark-circle-outline" size={20} color="#0B6E4F" />
+          )}
+          <Text className="font-inter-semibold text-base text-marca dark:text-marca-claro">
+            {escolhendo ? "Registrando..." : "Vou para esta unidade"}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

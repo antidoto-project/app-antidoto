@@ -1,5 +1,5 @@
 import type { FaixaEtaria, Sintoma, TipoAnimal, Urgencia } from "@/types/enums.types";
-import { calcularUrgencia } from "@/utils/urgencia";
+import { calcularUrgencia, maiorUrgencia } from "@/utils/urgencia";
 
 const AGORA = new Date("2026-11-09T21:00:00.000Z");
 const MINUTO = 60_000;
@@ -80,5 +80,16 @@ describe("calcularUrgencia — motivos", () => {
 
     expect(resultado.urgencia).toBe("EMERGENCIA");
     expect(resultado.motivos).not.toContain("Mais de 3 horas desde a picada");
+  });
+});
+
+describe("maiorUrgencia (app × servidor: nunca rebaixar)", () => {
+  it.each([
+    ["MODERADA", "ALTA", "ALTA"],
+    ["ALTA", "MODERADA", "ALTA"],
+    ["EMERGENCIA", "ALTA", "EMERGENCIA"],
+    ["MODERADA", "MODERADA", "MODERADA"],
+  ] as [Urgencia, Urgencia, Urgencia][])("%s e %s → %s", (a, b, esperado) => {
+    expect(maiorUrgencia(a, b)).toBe(esperado);
   });
 });

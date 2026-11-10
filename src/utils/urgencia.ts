@@ -10,8 +10,11 @@ import { ehSintomaDeAlerta } from "@/utils/rotulos";
 
 const ORDEM: Urgencia[] = ["MODERADA", "ALTA", "EMERGENCIA"];
 
-/** A maior das duas urgências (MODERADA < ALTA < EMERGENCIA). */
-function maior(a: Urgencia, b: Urgencia): Urgencia {
+/**
+ * A maior das duas urgências (MODERADA < ALTA < EMERGENCIA). Também decide entre
+ * a do app e a do servidor: vale a maior, nunca rebaixar (CLAUDE.md §12).
+ */
+export function maiorUrgencia(a: Urgencia, b: Urgencia): Urgencia {
   return ORDEM.indexOf(a) >= ORDEM.indexOf(b) ? a : b;
 }
 
@@ -41,7 +44,7 @@ export function calcularUrgencia(
   const motivos: string[] = [];
 
   function subir(nivel: Urgencia, motivo: string) {
-    urgencia = maior(urgencia, nivel);
+    urgencia = maiorUrgencia(urgencia, nivel);
     if (!motivos.includes(motivo)) motivos.push(motivo);
   }
 

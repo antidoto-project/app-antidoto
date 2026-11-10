@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useForm } from "react-hook-form";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -12,10 +12,17 @@ import { TelaFormulario } from "@/components/ui/TelaFormulario";
 import { useSessao } from "@/context/SessaoContext";
 import { useEntrar } from "@/hooks/useAutenticacao";
 import { CAMPOS_LOGIN, LoginSchema, type LoginInput } from "@/schemas/login.schema";
+import { RetornoAoResultadoSchema } from "@/schemas/triagem.schema";
 
-/** T1 — Login, com o botão "SOS — Fui picado" no topo: a triagem não precisa de conta (RN-G1). */
+/**
+ * T1 — Login, com o botão "SOS — Fui picado" no topo: a triagem não precisa de
+ * conta (RN-G1). Quem chega pelo "Entre para salvar a ocorrência" traz as
+ * respostas da triagem e, depois de entrar, volta para o resultado.
+ */
 export default function TelaLogin() {
   const { entrar } = useSessao();
+  const leituraRetorno = RetornoAoResultadoSchema.safeParse(useLocalSearchParams());
+  const retorno = leituraRetorno.success ? leituraRetorno.data : null;
 
   const {
     control,
@@ -34,7 +41,9 @@ export default function TelaLogin() {
     enviarLogin(dados, {
       onSuccess: async (resposta) => {
         await entrar(resposta);
-        router.replace("/(tabs)");
+        // Volta ao resultado que já estava aberto (sem empilhar outro igual)
+        if (retorno) router.dismissTo({ pathname: "/sos/resultado", params: retorno });
+        else router.replace("/(tabs)");
       },
       onError: (erro) => {
         // MVP-02 §3.4: no login, o 401 é só a mensagem de credenciais
@@ -54,16 +63,23 @@ export default function TelaLogin() {
       topo={
         <View className="gap-6">
           <LogoAntidoto />
-          <View className="items-center gap-3 rounded-3xl bg-white px-5 py-6 dark:bg-gray-800">
-            <BotaoSos />
-            <Text className="text-center font-inter text-base text-texto dark:text-texto-escuro">
-              Foi picado agora? Toque no SOS.{"\n"}Não precisa de conta.
-            </Text>
-          </View>
+          {/* Quem veio do resultado já está no SOS: o botão só confundiria */}
+          {!retorno && (
+            <View className="items-center gap-3 rounded-3xl bg-white px-5 py-6 dark:bg-gray-800">
+              <BotaoSos />
+              <Text className="text-center font-inter text-base text-texto dark:text-texto-escuro">
+                Foi picado agora? Toque no SOS.{"\n"}Não precisa de conta.
+              </Text>
+            </View>
+          )}
         </View>
       }
       titulo={"Entre na sua\nconta"}
-      subtitulo="Para registrar ocorrências e avistamentos."
+      subtitulo={
+        retorno
+          ? "Depois de entrar, você volta para o resultado e salva a ocorrência."
+          : "Para registrar ocorrências e avistamentos."
+      }
       erro={errors.root?.message}
       rodape={
         <BotaoEnviar
@@ -97,7 +113,9 @@ export default function TelaLogin() {
       </View>
 
       <TouchableOpacity
-        onPress={() => router.push("/cadastro")}
+        onPress={() =>
+          router.push(retorno ? { pathname: "/cadastro", params: retorno } : "/cadastro")
+        }
         activeOpacity={0.7}
         accessibilityRole="link"
         className="min-h-[48px] justify-center self-center"

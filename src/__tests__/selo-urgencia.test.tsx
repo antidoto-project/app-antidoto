@@ -20,3 +20,13 @@ describe("SeloUrgencia", () => {
     }
   );
 });
+
+describe("SeloUrgencia compacto (listas)", () => {
+  it("também tem texto e ícone", async () => {
+    render(<SeloUrgencia urgencia="ALTA" compacto />);
+
+    expect(await screen.findByText("Alta")).toBeTruthy();
+    expect(screen.getByLabelText("Urgência Alta")).toBeTruthy();
+    expect(screen.UNSAFE_getByProps({ name: "warning" })).toBeTruthy();
+  });
+});

@@ -40,8 +40,13 @@ export function definirUrlDaApi(): string {
 
 const urlBase = definirUrlDaApi();
 
-if (__DEV__ && !process.env.EXPO_PUBLIC_API_URL) {
-  console.log(`[api] Usando a API local em ${urlBase}`);
+// No desenvolvimento, o terminal do Expo mostra para onde o app manda as chamadas
+// (o primeiro passo quando a tela diz "Sem conexão"). Nos testes, fica quieto.
+if (__DEV__ && process.env.NODE_ENV !== "test") {
+  const origem = process.env.EXPO_PUBLIC_API_URL
+    ? "EXPO_PUBLIC_API_URL do .env"
+    : "sem .env: API Java local, porta 8080";
+  console.log(`[api] Endereço da API: ${urlBase} (${origem})`);
 }
 
 export const api = create({
@@ -84,6 +89,17 @@ api.interceptors.response.use(
   (erro) => {
     const levouToken = isAxiosError(erro) && Boolean(erro.config?.headers?.Authorization);
     if (levouToken && erro.response?.status === 401) tratadorSessaoExpirada?.();
+
+    // Chamada sem resposta (servidor fora, endereço errado, rede bloqueada) é o que
+    // a tela mostra como "Sem conexão": no desenvolvimento, o terminal mostra o
+    // endereço completo e o motivo
+    if (__DEV__ && isAxiosError(erro) && !erro.response) {
+      const endereco = `${erro.config?.baseURL ?? ""}${erro.config?.url ?? ""}`;
+      console.warn(
+        `[api] Sem resposta de ${endereco}: ${erro.message} (${erro.code ?? "sem código"})`
+      );
+    }
+
     return Promise.reject(erro);
   }
 );

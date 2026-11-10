@@ -22,7 +22,7 @@ function IconeAba({
   return <Ionicons name={focado ? cheio : contorno} size={24} color={color} />;
 }
 
-/** Abas de quem está logado. Ocorrências entra no Passo 6. */
+/** Abas de quem está logado: Início · Avistamentos · Ocorrências · Perfil (MVP-02 §2). */
 export default function LayoutAbas() {
   const { colorScheme } = useColorScheme();
   const escuro = colorScheme === "dark";
@@ -58,6 +58,20 @@ export default function LayoutAbas() {
             title: "Avistamentos",
             tabBarIcon: ({ color, focused }) => (
               <IconeAba cheio="eye" contorno="eye-outline" focado={focused} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="ocorrencias"
+          options={{
+            title: "Ocorrências",
+            tabBarIcon: ({ color, focused }) => (
+              <IconeAba
+                cheio="document-text"
+                contorno="document-text-outline"
+                focado={focused}
+                color={color}
+              />
             ),
           }}
         />

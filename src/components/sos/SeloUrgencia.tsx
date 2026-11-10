@@ -27,8 +27,27 @@ const ESTILO: Record<Urgencia, { fundo: string; texto: string; icone: NomeIcone;
   },
 };
 
-export function SeloUrgencia({ urgencia }: { urgencia: Urgencia }) {
+type Props = {
+  urgencia: Urgencia;
+  /** Versão pequena, para listas (histórico de ocorrências). */
+  compacto?: boolean;
+};
+
+export function SeloUrgencia({ urgencia, compacto = false }: Props) {
   const { fundo, texto, icone, cor } = ESTILO[urgencia];
+
+  if (compacto) {
+    return (
+      <View
+        accessible
+        accessibilityLabel={`Urgência ${LABEL_URGENCIA[urgencia]}`}
+        className={`flex-row items-center gap-1 self-start rounded-full px-3 py-1 ${fundo}`}
+      >
+        <Ionicons name={icone} size={16} color={cor} />
+        <Text className={`font-inter-semibold text-sm ${texto}`}>{LABEL_URGENCIA[urgencia]}</Text>
+      </View>
+    );
+  }
 
   return (
     <View

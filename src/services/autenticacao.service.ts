@@ -1,8 +1,9 @@
 import { api } from "@/api/api";
 import type { CadastroInput } from "@/schemas/cadastro.schema";
+import type { EditarPerfilInput } from "@/schemas/editar-perfil.schema";
 import type { LoginInput } from "@/schemas/login.schema";
 import type { RespostaAutenticacao, Usuario } from "@/types/usuario.types";
-import { somenteDigitos } from "@/utils/mascaras";
+import { mascararTelefone, somenteDigitos } from "@/utils/mascaras";
 
 /**
  * Confere a resposta do login e do cadastro: sem token ou sem usuário, a sessão
@@ -46,5 +47,26 @@ export const autenticacaoService = {
   async buscarUsuarioLogado(): Promise<Usuario> {
     const { data } = await api.get<Usuario>("/api/usuarios/me");
     return data;
+  },
+
+  /**
+   * PUT /api/usuarios/me — o contrato só deixa mudar o nome e o telefone
+   * (AtualizarUsuarioRequest). Devolve o usuário já atualizado.
+   */
+  async atualizarUsuario(dados: EditarPerfilInput): Promise<Usuario> {
+    const telefone = somenteDigitos(dados.telefone);
+    const { data } = await api.put<Usuario>("/api/usuarios/me", {
+      nome: dados.nome.trim(),
+      telefone: telefone || null, // vazio apaga o telefone; na API, só os dígitos
+    });
+    return data;
+  },
+
+  /** Usuário da API → valores do formulário do Perfil (telefone com máscara). */
+  paraFormulario(usuario: Usuario): EditarPerfilInput {
+    return {
+      nome: usuario.nome,
+      telefone: usuario.telefone ? mascararTelefone(usuario.telefone) : "",
+    };
   },
 };

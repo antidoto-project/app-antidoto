@@ -34,7 +34,7 @@ function LinhaInfo({
   );
 }
 
-/** Dados de quem está logado, só leitura (editar entra no Passo 7). */
+/** Dados de quem está logado, só leitura. O lápis do cabeçalho troca pelo FormDadosPessoais. */
 export function DadosPessoaisCard({ nome, email, telefone }: Props) {
   return (
     <View className="gap-2">

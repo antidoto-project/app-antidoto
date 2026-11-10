@@ -7,7 +7,9 @@ import { Linking } from "react-native";
 
 import { api } from "@/api/api";
 import { UnidadesProximas } from "@/components/sos/UnidadesProximas";
+import { useLocalizacao } from "@/hooks/useLocalizacao";
 import { criarClienteDeTeste } from "@/testes/clienteDeTeste";
+import type { TipoAnimal } from "@/types/enums.types";
 import type { UnidadeProxima } from "@/types/unidade.types";
 
 // Só o HTTP e o GPS são simulados: service, hook e componentes rodam de verdade
@@ -39,6 +41,24 @@ const HOSPITAL: UnidadeProxima = {
   sorosCompativeis: ["ANTIESCORPIONICO", "ANTIARACNIDICO"],
 };
 
+/** Como no resultado: o GPS fica na tela e vai para as unidades. */
+function UnidadesComGps({
+  tipoAnimal,
+  onEscolherUnidade,
+}: {
+  tipoAnimal: TipoAnimal;
+  onEscolherUnidade?: (unidade: UnidadeProxima) => void;
+}) {
+  const localizacao = useLocalizacao();
+  return (
+    <UnidadesProximas
+      tipoAnimal={tipoAnimal}
+      localizacao={localizacao}
+      onEscolherUnidade={onEscolherUnidade}
+    />
+  );
+}
+
 function wrapper({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={criarClienteDeTeste()}>{children}</QueryClientProvider>;
 }
@@ -60,7 +80,7 @@ describe("UnidadesProximas (T4)", () => {
     gpsLiberado();
     mockGet.mockResolvedValue({ data: [HOSPITAL] });
 
-    render(<UnidadesProximas tipoAnimal="ESCORPIAO" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
 
     expect(await screen.findByText("Hospital Exemplo Centro")).toBeTruthy();
     expect(mockGet).toHaveBeenCalledWith("/api/unidades/proximas", {
@@ -78,7 +98,7 @@ describe("UnidadesProximas (T4)", () => {
     mockGet.mockResolvedValue({ data: [HOSPITAL] });
     const abrir = jest.spyOn(Linking, "openURL").mockResolvedValue(true);
 
-    render(<UnidadesProximas tipoAnimal="ESCORPIAO" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
     fireEvent.press(await screen.findByLabelText("Ligar para Hospital Exemplo Centro"));
     fireEvent.press(screen.getByLabelText("Rota até Hospital Exemplo Centro"));
 
@@ -93,7 +113,7 @@ describe("UnidadesProximas (T4)", () => {
     mockUltimaPosicao.mockResolvedValue(AQUI);
     mockGet.mockResolvedValue({ data: [HOSPITAL] });
 
-    render(<UnidadesProximas tipoAnimal="ESCORPIAO" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
 
     expect(await screen.findByText("Hospital Exemplo Centro")).toBeTruthy();
     expect(mockPosicaoAtual).not.toHaveBeenCalled();
@@ -104,7 +124,7 @@ describe("UnidadesProximas (T4)", () => {
     gpsLiberado();
     mockGet.mockResolvedValue({ data: [HOSPITAL] });
 
-    render(<UnidadesProximas tipoAnimal="ESCORPIAO" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
 
     expect(
       await screen.findByText("Ative a localização para ver as unidades próximas")
@@ -122,7 +142,7 @@ describe("UnidadesProximas (T4)", () => {
     mockPermissao.mockResolvedValue({ granted: false, canAskAgain: false });
     const abrirConfiguracoes = jest.spyOn(Linking, "openSettings").mockResolvedValue();
 
-    render(<UnidadesProximas tipoAnimal="ESCORPIAO" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
     fireEvent.press(await screen.findByText("Abrir as configurações"));
 
     expect(abrirConfiguracoes).toHaveBeenCalled();
@@ -133,7 +153,7 @@ describe("UnidadesProximas (T4)", () => {
     mockUltimaPosicao.mockResolvedValue(null);
     mockPosicaoAtual.mockRejectedValue(new Error("Location services are disabled"));
 
-    render(<UnidadesProximas tipoAnimal="ESCORPIAO" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
 
     expect(
       await screen.findByText("Não deu para achar a sua localização. Confira se o GPS está ligado.")
@@ -145,7 +165,7 @@ describe("UnidadesProximas (T4)", () => {
     mockGet.mockRejectedValueOnce(new AxiosError("Network Error", "ERR_NETWORK"));
     mockGet.mockResolvedValueOnce({ data: [HOSPITAL] });
 
-    render(<UnidadesProximas tipoAnimal="ESCORPIAO" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
 
     expect(await screen.findByText("Sem conexão. Tente novamente.")).toBeTruthy();
     fireEvent.press(screen.getByText("Tentar novamente"));
@@ -157,7 +177,7 @@ describe("UnidadesProximas (T4)", () => {
     gpsLiberado();
     mockGet.mockResolvedValue({ data: [] });
 
-    render(<UnidadesProximas tipoAnimal="SERPENTE" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="SERPENTE" />, { wrapper });
 
     expect(await screen.findByText("Nenhuma unidade com soro encontrada. Ligue 192.")).toBeTruthy();
   });
@@ -166,10 +186,25 @@ describe("UnidadesProximas (T4)", () => {
     gpsLiberado();
     mockGet.mockResolvedValue({ data: [{ ...HOSPITAL, tipo: "UPA", sorosCompativeis: [] }] });
 
-    render(<UnidadesProximas tipoAnimal="ABELHA" />, { wrapper });
+    render(<UnidadesComGps tipoAnimal="ABELHA" />, { wrapper });
 
     expect(await screen.findByText("Atendimento de urgência")).toBeTruthy();
     expect(screen.getByText("Atendimento de urgência perto de você")).toBeTruthy();
     expect(screen.queryByText(/^Soro /)).toBeNull();
+  });
+
+  it("deslogado: sem 'Vou para esta unidade'; logado: o botão escolhe a unidade", async () => {
+    gpsLiberado();
+    mockGet.mockResolvedValue({ data: [HOSPITAL] });
+    const escolher = jest.fn();
+
+    const { rerender } = render(<UnidadesComGps tipoAnimal="ESCORPIAO" />, { wrapper });
+    expect(await screen.findByText("Hospital Exemplo Centro")).toBeTruthy();
+    expect(screen.queryByText("Vou para esta unidade")).toBeNull();
+
+    rerender(<UnidadesComGps tipoAnimal="ESCORPIAO" onEscolherUnidade={escolher} />);
+    fireEvent.press(await screen.findByLabelText("Vou para Hospital Exemplo Centro"));
+
+    expect(escolher).toHaveBeenCalledWith(HOSPITAL);
   });
 });

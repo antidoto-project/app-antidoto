@@ -123,6 +123,19 @@ describe("sessão (JWT) no cliente", () => {
     expect(tratador).not.toHaveBeenCalled();
   });
 
+  it("sem resposta (servidor fora): avisa no terminal com o endereço e o motivo", async () => {
+    const aviso = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const semResposta: AxiosAdapter = async (config) => {
+      throw new AxiosError("Network Error", "ERR_NETWORK", config);
+    };
+
+    await expect(api.get("/api/auth/login", { adapter: semResposta })).rejects.toThrow();
+
+    expect(aviso).toHaveBeenCalledWith(
+      "[api] Sem resposta de https://api.test.local/api/auth/login: Network Error (ERR_NETWORK)"
+    );
+  });
+
   it("403 com token não é sessão expirada", async () => {
     definirTokenDeAcesso("token-da-ana");
 

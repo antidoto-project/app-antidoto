@@ -30,8 +30,8 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 | 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅       |
 | 4     | Unidades próximas com soro compatível (GPS, Ligar e Rota) e primeiros socorros                                                                | ✅       |
 | 5     | CRUD de avistamentos (aba Avistamentos, novo, editar e excluir com confirmação; localização pelo GPS)                                         | ✅       |
-| 6     | Ocorrência e resumo por IA                                                                                                                    | ⏳       |
-| 7     | Perfil e Sobre o App                                                                                                                          | ⏳       |
+| 6     | Registrar ocorrência (com a volta pelo login), resumo por IA consultado a cada 3 s e aba Ocorrências                                          | ✅       |
+| 7     | Perfil (editar nome e telefone) e Sobre o App (versão, build e hash do commit, integrantes)                                                   | ✅       |
 | 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | ⏳       |
 
 ---

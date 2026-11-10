@@ -3,24 +3,37 @@ import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
+import { mensagemDaApi } from "@/api/erros";
+import { RegistrarOcorrencia } from "@/components/ocorrencias/RegistrarOcorrencia";
 import { AvisoAtendimento } from "@/components/sos/AvisoAtendimento";
 import { BotaoLigar192 } from "@/components/sos/BotaoLigar192";
 import { ResumoTriagem } from "@/components/sos/ResumoTriagem";
 import { SeloUrgencia } from "@/components/sos/SeloUrgencia";
 import { UnidadesProximas } from "@/components/sos/UnidadesProximas";
+import { useSessao } from "@/context/SessaoContext";
+import { useLocalizacao } from "@/hooks/useLocalizacao";
+import { useCriarOcorrencia } from "@/hooks/useOcorrencias";
 import { criarParamsResultadoSchema } from "@/schemas/triagem.schema";
 import { calcularUrgencia } from "@/utils/urgencia";
 
 /**
  * T4 — Resultado do SOS. A urgência é calculada AQUI, no aparelho (RN-U):
  * aparece mesmo sem internet, assim como os primeiros socorros (conteúdo local).
- * Só as unidades próximas dependem do GPS e da API. O "Registrar ocorrência"
- * entra no Passo 6.
+ * As unidades e o registro da ocorrência dependem do GPS e da API.
  */
 export default function TelaResultado() {
   const params = useLocalSearchParams();
   // A hora de "agora" fica fixa enquanto a tela está aberta
   const [agora] = useState(() => new Date());
+  const { sessao } = useSessao();
+  // O GPS fica aqui: as unidades e o registro usam as mesmas coordenadas
+  const localizacao = useLocalizacao();
+  const {
+    mutate: criarOcorrencia,
+    isPending: registrando,
+    variables: registroEmAndamento,
+  } = useCriarOcorrencia();
+  const [erroRegistro, setErroRegistro] = useState<string | null>(null);
 
   // Os params vêm da URL: sem eles (ou com valor fora do contrato), refaz a triagem
   const leitura = criarParamsResultadoSchema(agora).safeParse(params);
@@ -34,6 +47,28 @@ export default function TelaResultado() {
     new Date(horaPicada),
     agora
   );
+
+  /** POST /api/ocorrencias (MVP-02 §3.2): com a unidade escolhida ou sem nenhuma. */
+  function registrar(unidadeId: number | null) {
+    if (!localizacao.coordenadas) return;
+    setErroRegistro(null);
+    criarOcorrencia(
+      { tipoAnimal, faixaEtaria, sintomas, horaPicada, ...localizacao.coordenadas, unidadeId },
+      {
+        onSuccess: (ocorrencia) =>
+          router.replace({ pathname: "/ocorrencias/[id]", params: { id: String(ocorrencia.id) } }),
+        onError: (erro) => setErroRegistro(mensagemDaApi(erro)),
+      }
+    );
+  }
+
+  /** Login levando as respostas: depois de entrar, o app volta para este resultado. */
+  function entrarParaSalvar() {
+    router.push({
+      pathname: "/login",
+      params: { tipoAnimal, faixaEtaria, sintomas: sintomas.join(","), horaPicada },
+    });
+  }
 
   return (
     <ScrollView
@@ -75,7 +110,21 @@ export default function TelaResultado() {
         </Text>
       </TouchableOpacity>
 
-      <UnidadesProximas tipoAnimal={tipoAnimal} />
+      <UnidadesProximas
+        tipoAnimal={tipoAnimal}
+        localizacao={localizacao}
+        onEscolherUnidade={sessao ? (unidade) => registrar(unidade.id) : undefined}
+        idEscolhendo={registrando ? registroEmAndamento?.unidadeId : null}
+      />
+
+      <RegistrarOcorrencia
+        logado={Boolean(sessao)}
+        temLocalizacao={localizacao.coordenadas !== null}
+        registrando={registrando && registroEmAndamento?.unidadeId === null}
+        erro={erroRegistro}
+        onRegistrar={() => registrar(null)}
+        onEntrar={entrarParaSalvar}
+      />
 
       <ResumoTriagem
         tipoAnimal={tipoAnimal}

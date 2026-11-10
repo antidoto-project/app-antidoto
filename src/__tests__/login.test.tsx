@@ -1,7 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { AxiosError, AxiosHeaders, type AxiosResponse } from "axios";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import type { ReactNode } from "react";
 
 import { api } from "@/api/api";
@@ -15,6 +15,14 @@ const mockEntrar = jest.fn();
 jest.mock("@/context/SessaoContext", () => ({ useSessao: () => ({ entrar: mockEntrar }) }));
 
 const mockPost = api.post as jest.Mock;
+const mockParams = useLocalSearchParams as jest.Mock;
+
+const RETORNO = {
+  tipoAnimal: "ESCORPIAO",
+  faixaEtaria: "CRIANCA",
+  sintomas: "DOR_LOCAL",
+  horaPicada: "2026-11-09T22:00:00.000Z",
+};
 
 const RESPOSTA = {
   token: "token-da-ana",
@@ -123,5 +131,41 @@ describe("TelaLogin (T1)", () => {
     fireEvent.press(screen.getByText("Criar conta"));
 
     expect(router.push).toHaveBeenCalledWith("/cadastro");
+  });
+});
+
+describe("TelaLogin — vindo do 'Entre para salvar a ocorrência'", () => {
+  beforeEach(() => {
+    mockParams.mockReturnValue(RETORNO);
+  });
+
+  afterEach(() => {
+    mockParams.mockReturnValue({});
+  });
+
+  it("depois de entrar, volta para o resultado com as mesmas respostas", async () => {
+    mockPost.mockResolvedValueOnce({ data: RESPOSTA });
+
+    render(<TelaLogin />, { wrapper });
+    expect(
+      await screen.findByText("Depois de entrar, você volta para o resultado e salva a ocorrência.")
+    ).toBeTruthy();
+    // Já está no SOS: o botão SOS do topo sai
+    expect(screen.queryByLabelText("SOS, fui picado")).toBeNull();
+
+    preencher("ana@teste.com", "Teste@123");
+    fireEvent.press(screen.getByText("Entrar"));
+
+    await waitFor(() =>
+      expect(router.dismissTo).toHaveBeenCalledWith({ pathname: "/sos/resultado", params: RETORNO })
+    );
+  });
+
+  it("'Criar conta' leva as respostas para o cadastro", async () => {
+    render(<TelaLogin />, { wrapper });
+
+    fireEvent.press(await screen.findByText("Criar conta"));
+
+    expect(router.push).toHaveBeenCalledWith({ pathname: "/cadastro", params: RETORNO });
   });
 });

@@ -1,7 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { AxiosError, AxiosHeaders, type AxiosResponse } from "axios";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import type { ReactNode } from "react";
 
 import { api } from "@/api/api";
@@ -15,6 +15,14 @@ const mockEntrar = jest.fn();
 jest.mock("@/context/SessaoContext", () => ({ useSessao: () => ({ entrar: mockEntrar }) }));
 
 const mockPost = api.post as jest.Mock;
+const mockParams = useLocalSearchParams as jest.Mock;
+
+const RETORNO = {
+  tipoAnimal: "ESCORPIAO",
+  faixaEtaria: "CRIANCA",
+  sintomas: "DOR_LOCAL",
+  horaPicada: "2026-11-09T22:00:00.000Z",
+};
 
 const RESPOSTA = {
   token: "token-da-ana",
@@ -132,5 +140,24 @@ describe("TelaCadastro (T2)", () => {
     fireEvent.press(screen.getByText("Criar conta"));
 
     expect(await screen.findByText("Nome com caracteres inválidos")).toBeTruthy();
+  });
+});
+
+describe("TelaCadastro — vindo do 'Entre para salvar a ocorrência'", () => {
+  afterEach(() => {
+    mockParams.mockReturnValue({});
+  });
+
+  it("depois de criar a conta, volta para o resultado com as mesmas respostas", async () => {
+    mockParams.mockReturnValue(RETORNO);
+    mockPost.mockResolvedValueOnce({ data: RESPOSTA });
+
+    render(<TelaCadastro />, { wrapper });
+    preencher();
+    fireEvent.press(screen.getByText("Criar conta"));
+
+    await waitFor(() =>
+      expect(router.dismissTo).toHaveBeenCalledWith({ pathname: "/sos/resultado", params: RETORNO })
+    );
   });
 });

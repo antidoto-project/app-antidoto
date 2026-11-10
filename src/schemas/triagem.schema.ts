@@ -64,3 +64,18 @@ export type ParamsResultado = z.infer<ReturnType<typeof criarParamsResultadoSche
 export const ParamsPrimeirosSocorrosSchema = z.object({
   tipoAnimal: z.enum(TIPOS_ANIMAL),
 });
+
+/**
+ * As respostas da triagem que passam pelo login e pelo cadastro quando a pessoa
+ * toca em "Entre para salvar a ocorrência": depois de entrar, o app volta para o
+ * resultado com elas (decisão de 09/11). Ficam como texto, iguais aos params do
+ * resultado, que confere tudo de novo ao abrir.
+ */
+export const RetornoAoResultadoSchema = z.object({
+  tipoAnimal: z.enum(TIPOS_ANIMAL),
+  faixaEtaria: z.enum(FAIXAS_ETARIAS),
+  sintomas: z.string().default(""),
+  horaPicada: z.string().min(1),
+});
+
+export type RetornoAoResultado = z.infer<typeof RetornoAoResultadoSchema>;

@@ -175,6 +175,31 @@ describe("SessaoProvider — entrar, sair e 401", () => {
     expect(queryClient.getQueryData(["avistamentos", "meus"])).toBeUndefined();
   });
 
+  it("atualizarPerfil troca o usuário salvo (o Início cumprimenta pelo nome novo)", async () => {
+    await salvarSessaoDaAna();
+    mockBuscarUsuarioLogado.mockResolvedValueOnce(ANA);
+    await abrirApp();
+
+    await act(() => sessaoAtual.atualizarPerfil({ ...ANA, nome: "Ana Paula" }));
+
+    expect(screen.getByText("logada: Ana Paula")).toBeTruthy();
+    const salvo = JSON.parse((await AsyncStorage.getItem(CHAVE_USUARIO)) ?? "{}");
+    expect(salvo.nome).toBe("Ana Paula");
+    expect(await AsyncStorage.getItem(CHAVE_TOKEN)).toBe("token-da-ana");
+  });
+
+  it("atualizarPerfil de outra conta (ou sem sessão) não muda nada", async () => {
+    await salvarSessaoDaAna();
+    mockBuscarUsuarioLogado.mockResolvedValueOnce(ANA);
+    await abrirApp();
+
+    await act(() => sessaoAtual.atualizarPerfil({ ...ANA, id: 2, nome: "Outra Pessoa" }));
+
+    expect(screen.getByText("logada: Ana Souza")).toBeTruthy();
+    const salvo = JSON.parse((await AsyncStorage.getItem(CHAVE_USUARIO)) ?? "{}");
+    expect(salvo.nome).toBe("Ana Souza");
+  });
+
   it("um 401 numa chamada logada (tratador do api.ts) encerra a sessão", async () => {
     await salvarSessaoDaAna();
     mockBuscarUsuarioLogado.mockResolvedValueOnce(ANA);

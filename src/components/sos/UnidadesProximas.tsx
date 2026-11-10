@@ -4,19 +4,32 @@ import { mensagemDaApi } from "@/api/erros";
 import { EstadoErro } from "@/components/EstadoErro";
 import { EstadoVazio } from "@/components/EstadoVazio";
 import { CartaoUnidade } from "@/components/sos/CartaoUnidade";
-import { useLocalizacao } from "@/hooks/useLocalizacao";
+import type { useLocalizacao } from "@/hooks/useLocalizacao";
 import { useUnidadesProximas } from "@/hooks/useUnidades";
 import type { TipoAnimal } from "@/types/enums.types";
+import type { UnidadeProxima } from "@/types/unidade.types";
 
-type Props = { tipoAnimal: TipoAnimal };
+type Props = {
+  tipoAnimal: TipoAnimal;
+  /** O GPS fica na tela (useLocalizacao): o registro da ocorrência usa as mesmas coordenadas. */
+  localizacao: ReturnType<typeof useLocalizacao>;
+  /** Logado: "Vou para esta unidade" registra a ocorrência com ela (MVP-02 §3.2). */
+  onEscolherUnidade?: (unidade: UnidadeProxima) => void;
+  /** A unidade cujo registro está em andamento. */
+  idEscolhendo?: number | null;
+};
 
 /**
- * As unidades mais próximas no resultado (T4, MVP-02 §3.1): pega o GPS e busca
- * na API. Se o GPS ou a API falharem, o resto do resultado (urgência, 192,
- * primeiros socorros) continua na tela.
+ * As unidades mais próximas no resultado (T4, MVP-02 §3.1), a partir do GPS.
+ * Se o GPS ou a API falharem, o resto do resultado (urgência, 192, primeiros
+ * socorros) continua na tela.
  */
-export function UnidadesProximas({ tipoAnimal }: Props) {
-  const localizacao = useLocalizacao();
+export function UnidadesProximas({
+  tipoAnimal,
+  localizacao,
+  onEscolherUnidade,
+  idEscolhendo,
+}: Props) {
   const unidades = useUnidadesProximas(localizacao.coordenadas, tipoAnimal);
   // Abelha: não existe soro; a API devolve hospitais e UPAs (MVP-00 §4.4)
   const semSoro = tipoAnimal === "ABELHA";
@@ -34,7 +47,13 @@ export function UnidadesProximas({ tipoAnimal }: Props) {
         )}
       </View>
 
-      <ConteudoUnidades localizacao={localizacao} unidades={unidades} semSoro={semSoro} />
+      <ConteudoUnidades
+        localizacao={localizacao}
+        unidades={unidades}
+        semSoro={semSoro}
+        onEscolherUnidade={onEscolherUnidade}
+        idEscolhendo={idEscolhendo}
+      />
     </View>
   );
 }
@@ -43,10 +62,14 @@ function ConteudoUnidades({
   localizacao,
   unidades,
   semSoro,
+  onEscolherUnidade,
+  idEscolhendo,
 }: {
   localizacao: ReturnType<typeof useLocalizacao>;
   unidades: ReturnType<typeof useUnidadesProximas>;
   semSoro: boolean;
+  onEscolherUnidade?: (unidade: UnidadeProxima) => void;
+  idEscolhendo?: number | null;
 }) {
   if (localizacao.estado === "negada") {
     return (
@@ -126,7 +149,15 @@ function ConteudoUnidades({
   return (
     <View className="gap-3">
       {unidades.data.map((unidade) => (
-        <CartaoUnidade key={unidade.id} unidade={unidade} semSoro={semSoro} />
+        <CartaoUnidade
+          key={unidade.id}
+          unidade={unidade}
+          semSoro={semSoro}
+          onEscolher={onEscolherUnidade && (() => onEscolherUnidade(unidade))}
+          escolhendo={idEscolhendo === unidade.id}
+          // Um registro de cada vez
+          bloqueado={idEscolhendo != null}
+        />
       ))}
     </View>
   );
