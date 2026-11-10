@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { AxiosError, AxiosHeaders, type AxiosResponse } from "axios";
 import { router } from "expo-router";
 import type { ReactNode } from "react";
@@ -193,6 +193,31 @@ describe("TelaPerfil — editar nome e telefone (PUT /api/usuarios/me)", () => {
 
     expect(await screen.findByText("Sem conexão. Tente novamente.")).toBeTruthy();
     expect(screen.getByDisplayValue("Ana Paula")).toBeTruthy();
+  });
+
+  it("a conferência com a API que chega no meio da edição não apaga o que foi digitado", async () => {
+    const cliente = criarClienteDeTeste();
+    mockGet.mockResolvedValueOnce({ data: ANA });
+    render(
+      <QueryClientProvider client={cliente}>
+        <TelaPerfil />
+      </QueryClientProvider>
+    );
+    fireEvent.press(await screen.findByLabelText("Editar nome e telefone"));
+    fireEvent.changeText(screen.getByDisplayValue("Ana Souza"), "Ana Paula");
+
+    // Ex.: a revalidação da sessão traz o usuário de novo, com outro telefone
+    act(() => {
+      cliente.setQueryData(["usuario", "me"], { ...ANA, telefone: "11988887777" });
+    });
+
+    expect(screen.getByDisplayValue("Ana Paula")).toBeTruthy();
+    expect(screen.getByDisplayValue("(11) 99999-0000")).toBeTruthy();
+
+    // Cancelar volta para o que está salvo agora
+    fireEvent.press(screen.getByText("Cancelar"));
+    expect(await screen.findByText("(11) 98888-7777")).toBeTruthy();
+    expect(screen.getByText("Ana Souza")).toBeTruthy();
   });
 
   it("'Cancelar' desfaz o que foi digitado e volta para a leitura", async () => {

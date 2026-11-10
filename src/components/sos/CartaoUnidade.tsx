@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator, Linking, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Linking, Text, TouchableOpacity, View } from "react-native";
 
 import type { UnidadeProxima } from "@/types/unidade.types";
 import { linkLigar, linkRota } from "@/utils/links";
+import { mascararTelefone } from "@/utils/mascaras";
 import { LABEL_SORO, LABEL_TIPO_UNIDADE } from "@/utils/rotulos";
 import { formatarDistancia } from "@/utils/unidade";
 
@@ -16,7 +17,11 @@ type Props = {
   bloqueado?: boolean;
 };
 
-/** Uma unidade próxima no resultado (T4): distância, soros compatíveis, Ligar e Rota. */
+/**
+ * Uma unidade próxima no resultado (T4): distância, soros compatíveis, Ligar e
+ * Rota. Se o aparelho não abrir o discador ou o mapa, o aviso mostra o telefone
+ * ou o endereço.
+ */
 export function CartaoUnidade({
   unidade,
   semSoro,
@@ -62,7 +67,14 @@ export function CartaoUnidade({
       <View className="flex-row gap-3">
         {Boolean(telefone) && (
           <TouchableOpacity
-            onPress={() => Linking.openURL(linkLigar(telefone))}
+            onPress={() =>
+              Linking.openURL(linkLigar(telefone)).catch(() =>
+                Alert.alert(
+                  "Não deu para abrir o telefone",
+                  `Ligue ${mascararTelefone(telefone)} pelo discador do aparelho.`
+                )
+              )
+            }
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel={`Ligar para ${nome}`}
@@ -75,7 +87,11 @@ export function CartaoUnidade({
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          onPress={() => Linking.openURL(linkRota(unidade.latitude, unidade.longitude))}
+          onPress={() =>
+            Linking.openURL(linkRota(unidade.latitude, unidade.longitude)).catch(() =>
+              Alert.alert("Não deu para abrir o mapa", `Endereço: ${endereco}`)
+            )
+          }
           activeOpacity={0.85}
           accessibilityRole="button"
           accessibilityLabel={`Rota até ${nome}`}

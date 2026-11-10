@@ -4,6 +4,7 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { BotaoSos } from "@/components/sos/BotaoSos";
 import { TelefonesUteis } from "@/components/sos/TelefonesUteis";
+import { CabecalhoAba } from "@/components/ui/CabecalhoAba";
 import { useSessao } from "@/context/SessaoContext";
 
 /** T6 — Início: o botão SOS, o atalho para registrar um avistamento e os telefones úteis. */
@@ -16,14 +17,10 @@ export default function TelaInicio() {
       className="flex-1 bg-fundo dark:bg-fundo-escuro"
       contentContainerStyle={{ flexGrow: 1 }}
     >
-      <View className="gap-1 bg-marca px-6 pb-6 pt-14">
-        <Text accessibilityRole="header" className="font-inter-bold text-2xl text-white">
-          Olá{primeiroNome ? `, ${primeiroNome}` : ""}!
-        </Text>
-        <Text className="font-inter text-base text-white/90">
-          Em caso de picada, ligue 192 e procure atendimento.
-        </Text>
-      </View>
+      <CabecalhoAba
+        titulo={`Olá${primeiroNome ? `, ${primeiroNome}` : ""}!`}
+        subtitulo="Em caso de picada, ligue 192 e procure atendimento."
+      />
 
       <View className="gap-6 px-5 py-6">
         <View className="items-center gap-3 rounded-3xl bg-white px-5 py-6 dark:bg-gray-800">

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Linking, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Linking, Text, TouchableOpacity, View } from "react-native";
 
 import { linkLigar } from "@/utils/links";
 import { TELEFONES_UTEIS } from "@/utils/telefones";
@@ -19,7 +19,14 @@ export function TelefonesUteis() {
         {TELEFONES_UTEIS.map(({ nome, numero }, indice) => (
           <TouchableOpacity
             key={numero}
-            onPress={() => Linking.openURL(linkLigar(numero))}
+            onPress={() =>
+              Linking.openURL(linkLigar(numero)).catch(() =>
+                Alert.alert(
+                  "Não deu para abrir o telefone",
+                  `Ligue ${numero} pelo discador do aparelho.`
+                )
+              )
+            }
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={`Ligar para ${nome}, ${numero}`}

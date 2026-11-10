@@ -59,10 +59,12 @@ export default function TelaPerfil() {
     defaultValues: { nome: "", telefone: "" },
   });
 
-  // O formulário começa com o que está salvo
+  // Fora da edição, o formulário acompanha o que está salvo. Durante a edição,
+  // uma conferência com a API que chegue no meio não apaga o que foi digitado.
+  // Ao cancelar ou salvar, volta para o que está salvo (já com a resposta do PUT).
   useEffect(() => {
-    if (usuario) reset(autenticacaoService.paraFormulario(usuario));
-  }, [usuario, reset]);
+    if (usuario && !editando) reset(autenticacaoService.paraFormulario(usuario));
+  }, [usuario, editando, reset]);
 
   // O aviso some sozinho
   useEffect(() => {
@@ -70,11 +72,6 @@ export default function TelaPerfil() {
     const temporizador = setTimeout(() => setSalvo(false), TEMPO_DO_AVISO_MS);
     return () => clearTimeout(temporizador);
   }, [salvo]);
-
-  function cancelarEdicao() {
-    if (usuario) reset(autenticacaoService.paraFormulario(usuario));
-    setEditando(false);
-  }
 
   function salvar(dados: EditarPerfilInput) {
     atualizar(dados, {
@@ -101,7 +98,7 @@ export default function TelaPerfil() {
         editando={editando}
         podeEditar={Boolean(usuario)}
         onEditar={() => setEditando(true)}
-        onCancelar={cancelarEdicao}
+        onCancelar={() => setEditando(false)}
       />
 
       {isLoading ? (

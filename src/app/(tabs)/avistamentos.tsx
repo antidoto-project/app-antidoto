@@ -6,6 +6,7 @@ import { mensagemDaApi } from "@/api/erros";
 import { CartaoAvistamento } from "@/components/avistamentos/CartaoAvistamento";
 import { EstadoErro } from "@/components/EstadoErro";
 import { EstadoVazio } from "@/components/EstadoVazio";
+import { CabecalhoAba } from "@/components/ui/CabecalhoAba";
 import { useExcluirAvistamento, useMeusAvistamentos } from "@/hooks/useAvistamentos";
 import type { Avistamento } from "@/types/avistamento.types";
 import { formatarDataHora } from "@/utils/data";
@@ -38,14 +39,10 @@ export default function TelaAvistamentos() {
 
   return (
     <View className="flex-1 bg-fundo dark:bg-fundo-escuro">
-      <View className="gap-1 bg-marca px-6 pb-6 pt-14">
-        <Text accessibilityRole="header" className="font-inter-bold text-2xl text-white">
-          Avistamentos
-        </Text>
-        <Text className="font-inter text-base text-white/90">
-          Os animais peçonhentos que você viu por perto.
-        </Text>
-      </View>
+      <CabecalhoAba
+        titulo="Avistamentos"
+        subtitulo="Os animais peçonhentos que você viu por perto."
+      />
 
       <ConteudoLista
         avistamentos={avistamentos}

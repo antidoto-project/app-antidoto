@@ -112,6 +112,14 @@ describe("TelaLogin (T1)", () => {
     expect(mockPost).not.toHaveBeenCalled();
   });
 
+  it("o olho da senha é um botão para o leitor de tela e mostra a senha", () => {
+    render(<TelaLogin />, { wrapper });
+
+    fireEvent.press(screen.getByRole("button", { name: "Mostrar senha" }));
+
+    expect(screen.getByRole("button", { name: "Ocultar senha" })).toBeTruthy();
+  });
+
   it("mostra o logo do Antídoto acima do título", () => {
     render(<TelaLogin />, { wrapper });
 

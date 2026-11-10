@@ -76,6 +76,7 @@ export default function CampoTexto<T extends FieldValues>({
               <TouchableOpacity
                 onPress={() => setOculto((anterior) => !anterior)}
                 hitSlop={12}
+                accessibilityRole="button"
                 accessibilityLabel={oculto ? "Mostrar senha" : "Ocultar senha"}
               >
                 <Ionicons

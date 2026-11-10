@@ -1,10 +1,11 @@
 import { router } from "expo-router";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 
 import { mensagemDaApi } from "@/api/erros";
 import { CartaoOcorrencia } from "@/components/ocorrencias/CartaoOcorrencia";
 import { EstadoErro } from "@/components/EstadoErro";
 import { EstadoVazio } from "@/components/EstadoVazio";
+import { CabecalhoAba } from "@/components/ui/CabecalhoAba";
 import { useMinhasOcorrencias } from "@/hooks/useOcorrencias";
 
 /** T8 — Histórico de ocorrências (GET /api/ocorrencias/minhas). Tocar abre o resumo (T12). */
@@ -13,14 +14,10 @@ export default function TelaOcorrencias() {
 
   return (
     <View className="flex-1 bg-fundo dark:bg-fundo-escuro">
-      <View className="gap-1 bg-marca px-6 pb-6 pt-14">
-        <Text accessibilityRole="header" className="font-inter-bold text-2xl text-white">
-          Ocorrências
-        </Text>
-        <Text className="font-inter text-base text-white/90">
-          As picadas que você registrou e os resumos para a recepção.
-        </Text>
-      </View>
+      <CabecalhoAba
+        titulo="Ocorrências"
+        subtitulo="As picadas que você registrou e os resumos para a recepção."
+      />
 
       {isPending ? (
         <View className="flex-1 items-center justify-center">
