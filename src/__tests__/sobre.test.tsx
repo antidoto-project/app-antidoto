@@ -52,7 +52,9 @@ describe("TelaSobre (T13, MVP-02 §9)", () => {
 
     expect(screen.getByText("Integrantes")).toBeTruthy();
     expect(screen.getByText("Gustavo Souto de Melo")).toBeTruthy();
+    expect(screen.getByText("RM 558595")).toBeTruthy();
     expect(screen.getByText("Leonardo Barbosa Santos")).toBeTruthy();
+    expect(screen.getByText("RM 558230")).toBeTruthy();
     expect(screen.getByText(/são fictícias, só para demonstração/)).toBeTruthy();
   });
 

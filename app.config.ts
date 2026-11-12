@@ -70,8 +70,8 @@ export function conferirApiDoBuild(
   const url = ambiente.EXPO_PUBLIC_API_URL?.trim();
   if (!url) {
     throw new Error(
-      "EXPO_PUBLIC_API_URL não definida para o build: informe a API Java na Azure " +
-        '(https://<app>.azurewebsites.net) no "env" do perfil no eas.json ou nas ' +
+      "EXPO_PUBLIC_API_URL não definida para o build: informe a API Java no Render " +
+        '(https://api-antidoto-integration.onrender.com) no "env" do perfil no eas.json ou nas ' +
         "variáveis de ambiente do projeto no EAS. O .env está no .gitignore e não sobe para o EAS."
     );
   }

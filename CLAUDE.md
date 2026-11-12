@@ -47,14 +47,15 @@ Ligar e abrir a rota usam o `Linking` do React Native (`tel:` e link do Google M
 
 **Endereço da API** (`definirUrlDaApi`, `src/api/api.ts`):
 
-1. `EXPO_PUBLIC_API_URL` do `.env` (modelo em `.env.example`): o mock do contrato (Prism, porta 4010) ou a API na Azure (https).
+1. `EXPO_PUBLIC_API_URL` do `.env` (modelo em `.env.example`): o mock do contrato (Prism, porta 4010) ou a API Java no Render (`https://api-antidoto-integration.onrender.com`).
 2. Sem `.env`: a API Java no computador que roda o Expo (`Constants.expoConfig.hostUri`), porta **8080**. No navegador, o mesmo endereço da página.
 3. Sem esse dado: `http://localhost:8080`.
 
 - **Tempo limite:** 10 s (`TEMPO_LIMITE_API_MS`, MVP-02 §5.1).
 - **Trocou o `.env`?** Rode `npx expo start --clear`: o Metro guarda o valor antigo do `EXPO_PUBLIC_API_URL` em cache.
 - **Mock antes do Java:** `npx @stoplight/prism-cli mock -h 0.0.0.0 docs/api/openapi-mvp.yaml` e `EXPO_PUBLIC_API_URL=http://<ip do computador>:4010`. O `-h 0.0.0.0` deixa o celular alcançar o mock.
-- **Build do celular:** o `.env` não sobe para o EAS (está no `.gitignore`). O `app.config.ts` (`conferirApiDoBuild`) para o build do EAS que não tiver `EXPO_PUBLIC_API_URL` com `https://`.
+- **Build do celular:** o `.env` não sobe para o EAS (está no `.gitignore`). O `eas.json` (perfil `preview`, igual ao do Afetto: APK, distribuição interna, versão remota com `autoIncrement`) leva o `EXPO_PUBLIC_API_URL` do Render e o `EXPO_PUBLIC_APP_ENV`. O `app.config.ts` (`conferirApiDoBuild`) para o build do EAS que não tiver `EXPO_PUBLIC_API_URL` com `https://`.
+- **API no Render (plano grátis):** dorme sem uso e leva 1 a 2 minutos para acordar, mais que os 10 s do app. O monitor do UptimeRobot no `/actuator/health` a mantém acordada.
 - **Nenhuma chave de API no app.** Só o endereço.
 
 ---
@@ -293,7 +294,7 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 
 ## 13. Sobre o App e versão
 
-- **Tela (T13, `(app)/sobre.tsx`, MVP-02 §9):** versão do `app.json`, número do build (só no APK; no Expo Go seria o do próprio Expo Go), ambiente (`EXPO_PUBLIC_APP_ENV` do perfil do EAS; sem ele, "desenvolvimento"), commit curto, data e hash completo, integrantes e o aviso de dados fictícios. Entra pelo cartão "Sobre o App" do Perfil.
+- **Tela (T13, `(app)/sobre.tsx`, MVP-02 §9):** versão do `app.json`, número do build (só no APK; no Expo Go seria o do próprio Expo Go), ambiente (`EXPO_PUBLIC_APP_ENV` do perfil do EAS; sem ele, "desenvolvimento"), commit curto, data e hash completo, integrantes com o RM (os mesmos do Challenge) e o aviso de dados fictícios. Entra pelo cartão "Sobre o App" do Perfil.
 - **O hash nunca é escrito à mão.** O `app.config.ts` descobre o commit quando o Expo lê a configuração e coloca em `extra.commitHash`, `extra.commitData` e `extra.commitComAlteracoes`; o app lê de `Constants.expoConfig.extra` via `utils/versao.ts`.
 - **De onde vem:** no build do EAS (o APK do Firebase), de `EAS_BUILD_GIT_COMMIT_HASH`; no computador, do `git rev-parse HEAD`. Sem git, "não informado".
 - **Depois de um commit novo, reinicie o `npx expo start`** — o Expo só lê o `app.config.ts` quando inicia.

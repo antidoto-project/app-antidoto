@@ -23,12 +23,12 @@ describe("conferirApiDoBuild", () => {
     ).toThrow(/precisa ser https/);
   });
 
-  it("build do EAS com a API na Azure em https passa", () => {
+  it("build do EAS com a API no Render em https passa", () => {
     expect(() =>
       conferirApiDoBuild({
         EAS_BUILD: "true",
         EAS_BUILD_PROFILE: "preview",
-        EXPO_PUBLIC_API_URL: "https://antidoto-api.azurewebsites.net",
+        EXPO_PUBLIC_API_URL: "https://api-antidoto-integration.onrender.com",
       })
     ).not.toThrow();
   });

@@ -12,6 +12,21 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 
 > ⚠️ O app **nunca** diz que a pessoa não precisa de atendimento e **nunca** indica dose ou remédio.
 
+|                    |                                                                                                                                                                                           |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🌐 API em produção | [https://api-antidoto-integration.onrender.com](https://api-antidoto-integration.onrender.com/actuator/health) · [Swagger](https://api-antidoto-integration.onrender.com/swagger-ui.html) |
+
+---
+
+## 👥 Equipe
+
+| Nome                    | RM        |
+| ----------------------- | --------- |
+| Gustavo Souto de Melo   | RM 558595 |
+| Iago Liziero Pereira    | RM 564063 |
+| Ícaro José dos Santos   | RM 562403 |
+| Leonardo Barbosa Santos | RM 558230 |
+
 ---
 
 ## 📱 O que o MVP faz
@@ -23,16 +38,16 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 
 ## 🚧 Andamento
 
-| Passo | O que entra                                                                                                                                   | Situação |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| 1     | Base do projeto: Expo + expo-router, NativeWind com a identidade visual, fonte Inter, camada da API, enums e rótulos, ESLint + Prettier, Jest | ✅       |
-| 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅       |
-| 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅       |
-| 4     | Unidades próximas com soro compatível (GPS, Ligar e Rota) e primeiros socorros                                                                | ✅       |
-| 5     | CRUD de avistamentos (aba Avistamentos, novo, editar e excluir com confirmação; localização pelo GPS)                                         | ✅       |
-| 6     | Registrar ocorrência (com a volta pelo login), resumo por IA consultado a cada 3 s e aba Ocorrências                                          | ✅       |
-| 7     | Perfil (editar nome e telefone) e Sobre o App (versão, build e hash do commit, integrantes)                                                   | ✅       |
-| 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | ⏳       |
+| Passo | O que entra                                                                                                                                   | Situação                                                                              |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 1     | Base do projeto: Expo + expo-router, NativeWind com a identidade visual, fonte Inter, camada da API, enums e rótulos, ESLint + Prettier, Jest | ✅                                                                                    |
+| 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅                                                                                    |
+| 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅                                                                                    |
+| 4     | Unidades próximas com soro compatível (GPS, Ligar e Rota) e primeiros socorros                                                                | ✅                                                                                    |
+| 5     | CRUD de avistamentos (aba Avistamentos, novo, editar e excluir com confirmação; localização pelo GPS)                                         | ✅                                                                                    |
+| 6     | Registrar ocorrência (com a volta pelo login), resumo por IA consultado a cada 3 s e aba Ocorrências                                          | ✅                                                                                    |
+| 7     | Perfil (editar nome e telefone) e Sobre o App (versão, build e hash do commit, integrantes)                                                   | ✅                                                                                    |
+| 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | 🔜 app apontando para a API no Render (`eas.json`); falta o APK no Firebase e o vídeo |
 
 ---
 
@@ -58,9 +73,12 @@ npx expo start
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | Java ainda não pronto: mock do contrato | `http://<ip do computador>:4010`, com `npx @stoplight/prism-cli mock -h 0.0.0.0 docs/api/openapi-mvp.yaml` rodando |
 | Java rodando no computador (porta 8080) | deixe comentado: o app acha o computador sozinho                                                                   |
-| Java na Azure                           | `https://<app>.azurewebsites.net`                                                                                  |
+| Java no Render (a API no ar)            | `https://api-antidoto-integration.onrender.com`                                                                    |
 
 Trocou o `.env`? Reinicie com `npx expo start --clear` (o Expo guarda o endereço antigo em cache).
+
+No APK (build do EAS), o endereço vem do [`eas.json`](eas.json): a API no Render. No plano grátis ela dorme
+sem uso e leva 1 a 2 minutos para acordar (o app desiste em 10 s); um monitor do UptimeRobot a mantém acordada.
 
 Nenhuma chave de API fica no app: só o endereço.
 
@@ -99,6 +117,5 @@ As convenções do projeto estão no [`CLAUDE.md`](CLAUDE.md).
 
 ## 📝 A completar antes da entrega
 
-- **Integrantes** (nome e RM).
 - **Link do vídeo** (até 5 minutos, no YouTube).
 - **Uso de IA generativa:** a Global Solution pede uma seção listando as ferramentas usadas e para quê.

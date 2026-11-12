@@ -7,12 +7,12 @@ import { ScrollView, Text, View } from "react-native";
 import { LogoAntidoto } from "@/components/LogoAntidoto";
 import { buildDoApp, versaoDoApp } from "@/utils/versao";
 
-/** Integrantes do grupo (Global Solution 2026/2). */
+/** Integrantes do grupo (Global Solution 2026/2), os mesmos do Challenge. */
 const INTEGRANTES = [
-  "Gustavo Souto de Melo",
-  "Iago Liziero Pereira",
-  "Ícaro José dos Santos",
-  "Leonardo Barbosa Santos",
+  { nome: "Gustavo Souto de Melo", rm: "558595" },
+  { nome: "Iago Liziero Pereira", rm: "564063" },
+  { nome: "Ícaro José dos Santos", rm: "562403" },
+  { nome: "Leonardo Barbosa Santos", rm: "558230" },
 ];
 
 function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
@@ -149,15 +149,18 @@ export default function TelaSobre() {
       </View>
 
       <Secao titulo="Integrantes">
-        {INTEGRANTES.map((nome, indice) => (
+        {INTEGRANTES.map(({ nome, rm }, indice) => (
           <View
-            key={nome}
+            key={rm}
             className={`flex-row items-center gap-3 py-3.5 ${
               indice < INTEGRANTES.length - 1 ? "border-b border-gray-200 dark:border-gray-700" : ""
             }`}
           >
             <Ionicons name="person-circle-outline" size={20} color="#6B7280" />
-            <Text className="font-inter text-base text-texto dark:text-texto-escuro">{nome}</Text>
+            <Text className="flex-1 font-inter text-base text-texto dark:text-texto-escuro">
+              {nome}
+            </Text>
+            <Text className="font-inter text-sm text-gray-600 dark:text-gray-300">RM {rm}</Text>
           </View>
         ))}
       </Secao>

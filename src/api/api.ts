@@ -18,8 +18,8 @@ export const TEMPO_LIMITE_API_MS = 10_000;
 /**
  * Endereço da API:
  * 1. `EXPO_PUBLIC_API_URL`, quando definida: o mock do contrato (Prism, porta
- *    4010) ou a API na Azure (https). No build que vai para o celular ela é
- *    obrigatória (ver app.config.ts).
+ *    4010) ou a API Java no Render (https). No build que vai para o celular ela
+ *    é obrigatória (ver app.config.ts) e vem do eas.json.
  * 2. Senão, a API Java no mesmo computador que roda o Expo. O endereço desse
  *    computador vem do próprio Expo (`hostUri`, ex.: "192.168.0.10:8081"). Não
  *    dá para fixar "localhost": no celular, localhost é o próprio celular. No
