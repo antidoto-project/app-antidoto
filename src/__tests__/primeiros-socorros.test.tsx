@@ -54,7 +54,9 @@ describe("TelaPrimeirosSocorros (T5)", () => {
 
     render(<TelaPrimeirosSocorros />, { wrapper });
 
-    expect(await screen.findByLabelText("Ligar para SAMU, 192")).toBeTruthy();
+    // Os telefones aparecem antes do texto da API; espera o texto para o teste fechar sem nada pendente
+    expect(await screen.findByText("Lave o local com água e sabão.")).toBeTruthy();
+    expect(screen.getByLabelText("Ligar para SAMU, 192")).toBeTruthy();
     expect(screen.getByLabelText("Ligar para Bombeiros, 193")).toBeTruthy();
     expect(screen.getByLabelText("Ligar para Disque-Intoxicação, 0800 722 6001")).toBeTruthy();
   });

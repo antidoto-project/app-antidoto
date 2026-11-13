@@ -75,13 +75,13 @@ src/
 │   ├── (auth)/           ← login (T1: logo e botão SOS no topo), cadastro (T2). Com as respostas da triagem nos params ("Entre para salvar a ocorrência"), voltam ao resultado
 │   ├── sos/              ← PÚBLICA, logado ou não (RN-G1): _layout, triagem (T3, 3 passos), resultado (T4: urgência no aparelho, primeiros socorros, unidades próximas e registrar a ocorrência), primeiros-socorros/[tipoAnimal] (T5, da API; sem internet, o aviso e o 192 continuam)
 │   ├── (tabs)/           ← com <RotaProtegida>: index = Início (T6: SOS, atalho do avistamento, telefones úteis), avistamentos (T7: lista, editar, excluir), ocorrencias (T8: histórico), perfil (T9: dados, editar nome e telefone na própria tela, Sobre o App e Sair)
-│   └── (app)/            ← com <RotaProtegida>, em Stack: avistamentos/novo (T10), avistamentos/[id] (T11), ocorrencias/[id]/index (T12: urgência, resumo e "Atualizar sintomas ou unidade"), ocorrencias/[id]/editar (T12b: sintomas e unidade, como o pet/[id]/editar do Afetto), sobre (T13: versão, build, commit, integrantes)
+│   └── (app)/            ← com <RotaProtegida>, em Stack: avistamentos/novo (T10), avistamentos/[id] (T11), ocorrencias/[id]/index (T12: urgência, resumo e "Atualizar sintomas ou unidade"), ocorrencias/[id]/editar (T12b: sintomas e unidade, como o pet/[id]/editar do Afetto), sobre (T13: versão, build, commit, integrantes), alterar-senha (pelo cartão "Segurança" do Perfil)
 ├── components/
-│   ├── ui/               ← CampoTexto, CampoSelecao (opções em botões; `colunas` 1, 2 ou 3; `descricao` na 2ª linha), BotaoEnviar, TelaFormulario (prop `topo`), ToastSucesso ("Salvo com sucesso!"; a tela controla quanto tempo fica), CabecalhoAba (cabeçalho verde das 4 abas, com a barra de status clara)
+│   ├── ui/               ← CampoTexto, CampoSelecao (opções em botões; `colunas` 1, 2 ou 3; `descricao` na 2ª linha), BotaoEnviar, TelaFormulario (prop `topo`), ToastSucesso ("Salvo com sucesso!"; a tela controla quando some, com `TEMPO_DO_AVISO_MS`), CabecalhoAba (cabeçalho verde das 4 abas, com a barra de status clara)
 │   ├── sos/              ← BotaoSos, SeletorAnimal, ListaSintomas, SeloUrgencia, BotaoLigar192, AvisoAtendimento (RN-G2), ResumoTriagem, UnidadesProximas (recebe a localização da tela; API e os estados), CartaoUnidade (Ligar, Rota e "Vou para esta unidade"), TelefonesUteis (RN-G8). SeloUrgencia tem a versão `compacto` (listas)
 │   ├── ocorrencias/      ← RegistrarOcorrencia (T4: logado registra; deslogado "Entre para salvar a ocorrência"), CartaoOcorrencia (T8), CartaoResumo (T12: PENDENTE → gerando; pronto → cartão + RN-G7), FormOcorrencia (T12b: sintomas e a unidade, entre as próximas do lugar da picada)
 │   ├── avistamentos/     ← CartaoAvistamento, FormAvistamento (campos do novo e do editar, como o FormPet do Afetto), CampoLocalizacao ("Usar minha localização")
-│   ├── perfil/           ← só da tela Perfil: PerfilHeader (lápis e "Cancelar"), DadosPessoaisCard, FormDadosPessoais (nome e telefone; o e-mail só aparece), SobreAppCard, ContaCard
+│   ├── perfil/           ← só da tela Perfil: PerfilHeader (lápis e "Cancelar"), DadosPessoaisCard, FormDadosPessoais (nome e telefone; o e-mail só aparece), SegurancaCard ("Alterar senha", como no Afetto), SobreAppCard, ContaCard
 │   ├── EstadoErro.tsx    ← erro com "Tentar novamente" (prop `icone`: a localização usa `location-outline`)
 │   ├── EstadoVazio.tsx   ← lista vazia (ex.: RN-S4)
 │   ├── LogoAntidoto.tsx  ← logo horizontal; versão de texto branco no tema escuro
@@ -90,16 +90,16 @@ src/
 │   └── SessaoContext.tsx ← ÚNICA fonte de verdade da sessão (seção 9)
 ├── hooks/
 │   ├── useAutenticacao.ts ← useEntrar, useCadastrar + CHAVE_USUARIO_LOGADO (["usuario","me"])
-│   ├── usePerfil.ts       ← useUsuarioLogado, useAtualizarUsuario (a resposta vai para ["usuario","me"] e para a sessão salva)
+│   ├── usePerfil.ts       ← useUsuarioLogado, useAtualizarUsuario (a resposta vai para ["usuario","me"] e para a sessão salva), useAlterarSenha
 │   ├── useTriagem.ts      ← hook de tela da T3: passo, respostas, validação por passo, concluir(agora) → params do resultado
 │   ├── useLocalizacao.ts  ← hook de tela: permissão + GPS (estado parada/buscando/negada/indisponivel/pronta, podePedirDeNovo, buscar). `automatica: false` = só no toque do botão
 │   ├── useUnidades.ts     ← useUnidadesProximas(coordenadas, tipoAnimal): só busca depois do GPS
 │   ├── useConteudo.ts     ← usePrimeirosSocorros(tipoAnimal), staleTime Infinity
 │   ├── useAvistamentos.ts ← useMeusAvistamentos, useAvistamento, useCriarAvistamento, useAtualizarAvistamento, useExcluirAvistamento (invalidam ["avistamentos","meus"])
 │   └── useOcorrencias.ts  ← useMinhasOcorrencias, useOcorrencia (consulta a cada 3 s enquanto PENDENTE: intervaloDoResumo), useCriarOcorrencia, useAtualizarOcorrencia, useExcluirOcorrencia
-├── schemas/              ← login, cadastro (+ CAMPOS_LOGIN / CAMPOS_CADASTRO), triagem (OPCOES_HORA_PICADA, um schema por passo, criarParamsResultadoSchema com a RN-G4, ParamsPrimeirosSocorrosSchema, RetornoAoResultadoSchema), avistamento (localização obrigatória e no Brasil, observação até 500, CAMPOS_AVISTAMENTO), editar-perfil (nome e telefone com as regras do cadastro, CAMPOS_EDITAR_PERFIL), editar-ocorrencia (sintomas e unidade, SEM_UNIDADE, CAMPOS_EDITAR_OCORRENCIA)
+├── schemas/              ← login, cadastro (+ CAMPOS_LOGIN / CAMPOS_CADASTRO), triagem (OPCOES_HORA_PICADA, um schema por passo, criarParamsResultadoSchema com a RN-G4, ParamsPrimeirosSocorrosSchema, RetornoAoResultadoSchema), avistamento (localização obrigatória e no Brasil, observação até 500, CAMPOS_AVISTAMENTO), editar-perfil (nome e telefone com as regras do cadastro, CAMPOS_EDITAR_PERFIL), editar-ocorrencia (sintomas e unidade, SEM_UNIDADE, CAMPOS_EDITAR_OCORRENCIA), alterar-senha (a nova com a regra do cadastro, repetida igual e diferente da atual; CAMPOS_ALTERAR_SENHA)
 ├── services/
-│   ├── autenticacao.service.ts ← autenticacaoService.{entrar, cadastrar, buscarUsuarioLogado, atualizarUsuario (PUT /api/usuarios/me), paraFormulario}
+│   ├── autenticacao.service.ts ← autenticacaoService.{entrar, cadastrar, buscarUsuarioLogado, atualizarUsuario (PUT /api/usuarios/me), alterarSenha (PUT /api/usuarios/me/senha), paraFormulario}
 │   ├── unidade.service.ts      ← unidadeService.buscarProximas (GET /api/unidades/proximas, limite 5)
 │   ├── conteudo.service.ts     ← conteudoService.buscarPrimeirosSocorros (GET /api/conteudo/primeiros-socorros/{tipoAnimal}, público; o texto fica no Java)
 │   ├── avistamento.service.ts  ← avistamentoService.{listarMeus (até 50), buscarPorId, criar (dataHora = agora), atualizar (dataHora original), excluir, paraFormulario}
@@ -249,6 +249,7 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 - **Entrar** (login e cadastro): grava token e usuário, passa o token ao `api.ts`, limpa o cache e já põe o usuário em `["usuario","me"]` (o Perfil abre sem esperar). O cadastro já entra, sem uma segunda chamada.
 - **401 numa chamada que levou o token** ⇒ o tratador registrado em `definirTratadorSessaoExpirada` limpa a sessão e o `<RotaProtegida>` manda para o login. **No login** (sem token), o 401 é só a mensagem "E-mail ou senha incorretos" (MVP-02 §3.4). O 403 não encerra a sessão.
 - **Editar o perfil (T9):** `PUT /api/usuarios/me` só com nome e telefone (o contrato não deixa mudar o e-mail). O usuário que a API devolve vai para `["usuario","me"]` e para a sessão salva (`atualizarPerfil`, que ignora outra conta): o Início cumprimenta pelo nome novo.
+- **Alterar senha** (Perfil → Segurança → `(app)/alterar-senha`): `PUT /api/usuarios/me/senha` com a atual e a nova. Senha atual errada volta como **400 no campo `senhaAtual`** (não 401, que encerraria a sessão). Salvou → "Salvo com sucesso!" e volta para o Perfil. **Sem "esqueci a senha"** (decisão de 13/11): precisaria de envio de e-mail, e o Render grátis bloqueia SMTP. Nada de botão sem tela (foi o que tirou ponto no Afetto).
 - **Logout** é local: o contrato não tem rota de logout (o JWT vive no aparelho). `sair()` apaga o AsyncStorage, tira o token do `api.ts` e faz `queryClient.clear()`; a tela vai para `/login`.
 - `RotaProtegida` nos layouts de `(tabs)` e `(app)`. A pasta `sos/` **não** é protegida (RN-G1).
 

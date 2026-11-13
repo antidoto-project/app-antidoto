@@ -17,6 +17,7 @@ export default function LayoutApp() {
         <Stack.Screen name="ocorrencias/[id]/index" options={{ title: "" }} />
         <Stack.Screen name="ocorrencias/[id]/editar" options={{ title: "" }} />
         <Stack.Screen name="sobre" options={{ title: "" }} />
+        <Stack.Screen name="alterar-senha" options={{ title: "" }} />
       </Stack>
     </RotaProtegida>
   );

@@ -35,3 +35,8 @@ export function useAtualizarUsuario() {
     },
   });
 }
+
+/** Troca de senha: nada para guardar no cache, a sessão continua a mesma. */
+export function useAlterarSenha() {
+  return useMutation({ mutationFn: autenticacaoService.alterarSenha });
+}

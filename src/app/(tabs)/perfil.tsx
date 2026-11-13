@@ -18,9 +18,10 @@ import { ContaCard } from "@/components/perfil/ContaCard";
 import { DadosPessoaisCard } from "@/components/perfil/DadosPessoaisCard";
 import { FormDadosPessoais } from "@/components/perfil/FormDadosPessoais";
 import { PerfilHeader } from "@/components/perfil/PerfilHeader";
+import { SegurancaCard } from "@/components/perfil/SegurancaCard";
 import { SobreAppCard } from "@/components/perfil/SobreAppCard";
 import { BotaoEnviar } from "@/components/ui/BotaoEnviar";
-import { ToastSucesso } from "@/components/ui/ToastSucesso";
+import { TEMPO_DO_AVISO_MS, ToastSucesso } from "@/components/ui/ToastSucesso";
 import { useSessao } from "@/context/SessaoContext";
 import { useAtualizarUsuario, useUsuarioLogado } from "@/hooks/usePerfil";
 import {
@@ -32,12 +33,10 @@ import { autenticacaoService } from "@/services/autenticacao.service";
 import { mascararTelefone } from "@/utils/mascaras";
 import { versaoDoApp } from "@/utils/versao";
 
-/** Quanto tempo o "Salvo com sucesso!" fica na tela (o mesmo do Afetto). */
-const TEMPO_DO_AVISO_MS = 2500;
-
 /**
  * T9 — Perfil: dados de quem está logado, editar nome e telefone (PUT
- * /api/usuarios/me), "Sobre o App" e sair. Edita na própria tela, como no Afetto.
+ * /api/usuarios/me), alterar a senha, "Sobre o App" e sair. Edita na própria
+ * tela, como no Afetto.
  */
 export default function TelaPerfil() {
   const { sair } = useSessao();
@@ -136,6 +135,7 @@ export default function TelaPerfil() {
               </Text>
             )}
 
+            <SegurancaCard onAlterarSenha={() => router.push("/alterar-senha")} />
             <SobreAppCard
               versao={versaoDoApp(Constants.expoConfig).versao}
               onAbrir={() => router.push("/sobre")}

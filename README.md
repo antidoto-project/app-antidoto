@@ -36,7 +36,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 3. **Ocorrências** (logado): registrar, ver o histórico, **atualizar** (sintomas novos ou outra unidade) e remover. A cada registro ou atualização, a API Java recalcula a urgência e gera, em segundo plano, um **resumo de pré-atendimento com IA** para mostrar na recepção.
 4. **Avistamentos** (logado): cadastro, lista, edição e exclusão dos animais peçonhentos vistos no bairro.
 
-Os dois CRUDs (ocorrências e avistamentos), o perfil, as unidades e os primeiros socorros vêm da API Java.
+Os dois CRUDs (ocorrências e avistamentos), o perfil (com **alterar a senha**), as unidades e os primeiros socorros vêm da API Java.
 
 ### O que é do aparelho, de propósito
 
@@ -60,6 +60,7 @@ Os dois CRUDs (ocorrências e avistamentos), o perfil, as unidades e os primeiro
 | 7     | Perfil (editar nome e telefone) e Sobre o App (versão, build e hash do commit, integrantes)                                                   | ✅                                                                                    |
 | 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | 🔜 app apontando para a API no Render (`eas.json`); falta o APK no Firebase e o vídeo |
 | 8.2   | Primeiros socorros pela API e atualizar a ocorrência (sintomas e unidade), completando o CRUD                                                 | ✅                                                                                    |
+| 8.3   | Alterar senha no Perfil (Segurança)                                                                                                           | ✅                                                                                    |
 
 ---
 

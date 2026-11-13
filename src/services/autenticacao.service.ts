@@ -1,4 +1,5 @@
 import { api } from "@/api/api";
+import type { AlterarSenhaInput } from "@/schemas/alterar-senha.schema";
 import type { CadastroInput } from "@/schemas/cadastro.schema";
 import type { EditarPerfilInput } from "@/schemas/editar-perfil.schema";
 import type { LoginInput } from "@/schemas/login.schema";
@@ -60,6 +61,14 @@ export const autenticacaoService = {
       telefone: telefone || null, // vazio apaga o telefone; na API, só os dígitos
     });
     return data;
+  },
+
+  /**
+   * PUT /api/usuarios/me/senha → 204. A senha atual errada volta como 400 no
+   * campo `senhaAtual` (não 401: a sessão continua).
+   */
+  async alterarSenha({ senhaAtual, novaSenha }: AlterarSenhaInput): Promise<void> {
+    await api.put("/api/usuarios/me/senha", { senhaAtual, novaSenha });
   },
 
   /** Usuário da API → valores do formulário do Perfil (telefone com máscara). */

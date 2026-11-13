@@ -98,6 +98,15 @@ describe("TelaPerfil (T9)", () => {
     expect(mockSair).toHaveBeenCalledTimes(1);
   });
 
+  it("'Alterar senha' abre a tela de trocar a senha", async () => {
+    mockGet.mockResolvedValueOnce({ data: ANA });
+
+    render(<TelaPerfil />, { wrapper });
+    fireEvent.press(await screen.findByText("Alterar senha"));
+
+    expect(router.push).toHaveBeenCalledWith("/alterar-senha");
+  });
+
   it("'Sobre o App' abre a tela com a versão e o commit", async () => {
     mockGet.mockResolvedValueOnce({ data: ANA });
 

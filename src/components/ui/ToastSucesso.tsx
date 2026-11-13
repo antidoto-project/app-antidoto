@@ -1,6 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 
+/** Quanto tempo o "Salvo com sucesso!" fica na tela (o mesmo do Afetto). */
+export const TEMPO_DO_AVISO_MS = 2500;
+
 /**
  * Aviso de "salvo" no topo da tela (o ToastSucesso do Afetto). A tela decide
  * quando mostrar e por quanto tempo. Fica fora da árvore quando escondido: com
