@@ -1,12 +1,13 @@
 import type { OpcaoHoraPicada } from "@/schemas/triagem.schema";
-import type {
-  FaixaEtaria,
-  LocalAvistamento,
-  Sintoma,
-  TipoAnimal,
-  TipoSoro,
-  TipoUnidade,
-  Urgencia,
+import {
+  SINTOMAS,
+  type FaixaEtaria,
+  type LocalAvistamento,
+  type Sintoma,
+  type TipoAnimal,
+  type TipoSoro,
+  type TipoUnidade,
+  type Urgencia,
 } from "@/types/enums.types";
 
 /*
@@ -114,6 +115,15 @@ export const SINTOMAS_DE_ALERTA: ReadonlySet<Sintoma> = new Set<Sintoma>([
   "INCHACO_ROSTO",
   "MUITAS_PICADAS_ALERGIA",
 ]);
+
+/**
+ * Marca ou desmarca um sintoma, mantendo a ordem do MVP-00 §4.2 seja qual for a
+ * ordem dos toques (triagem e atualização da ocorrência).
+ */
+export function alternarSintoma(marcados: Sintoma[], sintoma: Sintoma): Sintoma[] {
+  const marcado = marcados.includes(sintoma);
+  return SINTOMAS.filter((item) => (item === sintoma ? !marcado : marcados.includes(item)));
+}
 
 export function ehSintomaDeAlerta(sintoma: Sintoma): boolean {
   return SINTOMAS_DE_ALERTA.has(sintoma);

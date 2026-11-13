@@ -14,7 +14,8 @@ export default function LayoutApp() {
       <Stack screenOptions={opcoesCabecalhoNativo(colorScheme === "dark")}>
         <Stack.Screen name="avistamentos/novo" options={{ title: "" }} />
         <Stack.Screen name="avistamentos/[id]" options={{ title: "" }} />
-        <Stack.Screen name="ocorrencias/[id]" options={{ title: "" }} />
+        <Stack.Screen name="ocorrencias/[id]/index" options={{ title: "" }} />
+        <Stack.Screen name="ocorrencias/[id]/editar" options={{ title: "" }} />
         <Stack.Screen name="sobre" options={{ title: "" }} />
       </Stack>
     </RotaProtegida>

@@ -9,6 +9,7 @@ import {
   type Sintoma,
 } from "@/types/enums.types";
 import {
+  alternarSintoma,
   ehSintomaDeAlerta,
   IDADE_FAIXA_ETARIA,
   LABEL_FAIXA_ETARIA,
@@ -76,5 +77,14 @@ describe("rótulos dos enums", () => {
     expect(LABEL_TIPO_ANIMAL.SERPENTE).toBe("Cobra");
     expect(LABEL_SINTOMA.FALTA_DE_AR).toBe("Dificuldade para respirar");
     expect(LABEL_SINTOMA.MUITAS_PICADAS_ALERGIA).toBe("Muitas picadas (10+) ou alergia conhecida");
+  });
+});
+
+describe("alternarSintoma (triagem e atualização da ocorrência)", () => {
+  it("marca e desmarca, sempre na ordem do MVP-00 §4.2", () => {
+    const marcados = alternarSintoma(alternarSintoma([], "SANGRAMENTO"), "DOR_LOCAL");
+
+    expect(marcados).toEqual(["DOR_LOCAL", "SANGRAMENTO"]);
+    expect(alternarSintoma(marcados, "SANGRAMENTO")).toEqual(["DOR_LOCAL"]);
   });
 });

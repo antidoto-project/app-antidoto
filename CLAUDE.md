@@ -16,7 +16,7 @@ Este arquivo é o contrato de desenvolvimento do projeto: todo código gerado (p
 - **MVP (4 funcionalidades):**
   1. SOS **sem login**: 3 perguntas → urgência calculada no próprio app + o que fazer.
   2. Unidades mais próximas com **soro compatível**, com "Ligar" e "Rota".
-  3. (Logado) Registrar a ocorrência; o Java gera um resumo de pré-atendimento com IA (assíncrono).
+  3. (Logado) Registrar, atualizar (sintomas e unidade) e remover a ocorrência; o Java recalcula a urgência e gera um resumo de pré-atendimento com IA (assíncrono).
   4. (Logado) CRUD de avistamentos de animais peçonhentos.
 - **Princípio inegociável:** o app **nunca** diz que a pessoa não precisa de atendimento e **nunca** indica dose ou remédio.
 - **Fora do MVP** (só no pitch): refresh token, contatos de emergência, foto com IA no app, mapa de risco, modo offline completo, SMS, IoT, integração com o .NET.
@@ -25,23 +25,23 @@ Este arquivo é o contrato de desenvolvimento do projeto: todo código gerado (p
 
 ## 2. Stack e Dependências
 
-| Categoria         | Biblioteca                                                                                                                                                                                                                                                                                                            |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime/Framework | Expo `~54`, React Native `0.81`, React `19.1`, TypeScript                                                                                                                                                                                                                                                             |
-| Navegação         | `expo-router` `~6` (rotas por arquivo, `typedRoutes` no `app.json`)                                                                                                                                                                                                                                                   |
-| Estilização       | `nativewind` `^4` (Tailwind via `className`)                                                                                                                                                                                                                                                                          |
-| Formulários       | `react-hook-form` `^7` + `@hookform/resolvers/zod`                                                                                                                                                                                                                                                                    |
-| Validação         | `zod` `^4`                                                                                                                                                                                                                                                                                                            |
-| Data fetching     | `@tanstack/react-query` `^5`                                                                                                                                                                                                                                                                                          |
-| HTTP client       | `axios` `^1`                                                                                                                                                                                                                                                                                                          |
-| Sessão            | `@react-native-async-storage/async-storage` (token JWT e usuário)                                                                                                                                                                                                                                                     |
-| Ícones            | `@expo/vector-icons` — **só `Ionicons`** (fonte pré-carregada no `_layout.tsx` raiz). Os animais da triagem são emoji (`ICONE_TIPO_ANIMAL`), como as espécies do Afetto                                                                                                                                               |
-| Fonte             | **Inter** (`assets/fonts`, 3 pesos), carregada com `useFonts` do `expo-font` — sem biblioteca nova                                                                                                                                                                                                                    |
-| Assets            | `expo-asset`: vem com o Expo; declarado no `package.json` porque o `expo-font` o usa e o npm não o deixava na raiz do `node_modules` (o Jest não achava)                                                                                                                                                              |
-| Versão instalada  | `expo-application` — `nativeBuildVersion` na tela Sobre o App                                                                                                                                                                                                                                                         |
-| GPS               | `expo-location` `~19` — **única biblioteca nova** do MVP. A permissão é pedida só quando o resultado abre ou quando a pessoa toca em "Usar minha localização"; o texto dela fica no plugin do `app.json`                                                                                                              |
-| Testes            | `jest` + `jest-expo` + `@testing-library/react-native`. O `jest.setup.js` simula o `expo-router` (`router` com `dismissTo`, `<Redirect>`, `useLocalSearchParams`), a tela sempre em foco (`useIsFocused`), o AsyncStorage em memória e as fontes já carregadas (sem isso, cada ícone novo gera o aviso de `act(...)`) |
-| Lint/formatação   | ESLint (`eslint-config-expo`) + Prettier (`.prettierrc`: 100 colunas, aspas duplas, ponto e vírgula)                                                                                                                                                                                                                  |
+| Categoria         | Biblioteca                                                                                                                                                                                                                                                                                                                             |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime/Framework | Expo `~54`, React Native `0.81`, React `19.1`, TypeScript                                                                                                                                                                                                                                                                              |
+| Navegação         | `expo-router` `~6` (rotas por arquivo, `typedRoutes` no `app.json`)                                                                                                                                                                                                                                                                    |
+| Estilização       | `nativewind` `^4` (Tailwind via `className`)                                                                                                                                                                                                                                                                                           |
+| Formulários       | `react-hook-form` `^7` + `@hookform/resolvers/zod`                                                                                                                                                                                                                                                                                     |
+| Validação         | `zod` `^4`                                                                                                                                                                                                                                                                                                                             |
+| Data fetching     | `@tanstack/react-query` `^5`                                                                                                                                                                                                                                                                                                           |
+| HTTP client       | `axios` `^1`                                                                                                                                                                                                                                                                                                                           |
+| Sessão            | `@react-native-async-storage/async-storage` (token JWT e usuário)                                                                                                                                                                                                                                                                      |
+| Ícones            | `@expo/vector-icons` — **só `Ionicons`** (fonte pré-carregada no `_layout.tsx` raiz). Os animais da triagem são emoji (`ICONE_TIPO_ANIMAL`), como as espécies do Afetto                                                                                                                                                                |
+| Fonte             | **Inter** (`assets/fonts`, 3 pesos), carregada com `useFonts` do `expo-font` — sem biblioteca nova                                                                                                                                                                                                                                     |
+| Assets            | `expo-asset`: vem com o Expo; declarado no `package.json` porque o `expo-font` o usa e o npm não o deixava na raiz do `node_modules` (o Jest não achava)                                                                                                                                                                               |
+| Versão instalada  | `expo-application` — `nativeBuildVersion` na tela Sobre o App                                                                                                                                                                                                                                                                          |
+| GPS               | `expo-location` `~19` — **única biblioteca nova** do MVP. A permissão é pedida só quando o resultado abre ou quando a pessoa toca em "Usar minha localização"; o texto dela fica no plugin do `app.json`                                                                                                                               |
+| Testes            | `jest` + `jest-expo` + `@testing-library/react-native`. O `jest.setup.js` simula o `expo-router` (`router` com `dismissTo`, `<Redirect>`, `useLocalSearchParams`), a tela sempre em foco (`useFocusEffect` roda ao montar), o AsyncStorage em memória e as fontes já carregadas (sem isso, cada ícone novo gera o aviso de `act(...)`) |
+| Lint/formatação   | ESLint (`eslint-config-expo`) + Prettier (`.prettierrc`: 100 colunas, aspas duplas, ponto e vírgula)                                                                                                                                                                                                                                   |
 
 Ligar e abrir a rota usam o `Linking` do React Native (`tel:` e link do Google Maps), **sem biblioteca**.
 
@@ -73,13 +73,13 @@ src/
 │   ├── _layout.tsx       ← raiz: fontes (Ionicons + Inter), QueryClientProvider > SessaoProvider > Stack
 │   ├── index.tsx         ← porta de entrada: lendo a sessão → carregando; com sessão → Início; sem sessão → /login
 │   ├── (auth)/           ← login (T1: logo e botão SOS no topo), cadastro (T2). Com as respostas da triagem nos params ("Entre para salvar a ocorrência"), voltam ao resultado
-│   ├── sos/              ← PÚBLICA, logado ou não (RN-G1): _layout, triagem (T3, 3 passos), resultado (T4: urgência no aparelho, primeiros socorros, unidades próximas e registrar a ocorrência), primeiros-socorros/[tipoAnimal] (T5, conteúdo local)
+│   ├── sos/              ← PÚBLICA, logado ou não (RN-G1): _layout, triagem (T3, 3 passos), resultado (T4: urgência no aparelho, primeiros socorros, unidades próximas e registrar a ocorrência), primeiros-socorros/[tipoAnimal] (T5, da API; sem internet, o aviso e o 192 continuam)
 │   ├── (tabs)/           ← com <RotaProtegida>: index = Início (T6: SOS, atalho do avistamento, telefones úteis), avistamentos (T7: lista, editar, excluir), ocorrencias (T8: histórico), perfil (T9: dados, editar nome e telefone na própria tela, Sobre o App e Sair)
-│   └── (app)/            ← com <RotaProtegida>, em Stack: avistamentos/novo (T10), avistamentos/[id] (T11), ocorrencias/[id] (T12: urgência e resumo), sobre (T13: versão, build, commit, integrantes)
+│   └── (app)/            ← com <RotaProtegida>, em Stack: avistamentos/novo (T10), avistamentos/[id] (T11), ocorrencias/[id]/index (T12: urgência, resumo e "Atualizar sintomas ou unidade"), ocorrencias/[id]/editar (T12b: sintomas e unidade, como o pet/[id]/editar do Afetto), sobre (T13: versão, build, commit, integrantes)
 ├── components/
-│   ├── ui/               ← CampoTexto, CampoSelecao (opções em botões; `colunas` 2 ou 3; `descricao` na 2ª linha), BotaoEnviar, TelaFormulario (prop `topo`), ToastSucesso ("Salvo com sucesso!"; a tela controla quanto tempo fica), CabecalhoAba (cabeçalho verde das 4 abas, com a barra de status clara)
+│   ├── ui/               ← CampoTexto, CampoSelecao (opções em botões; `colunas` 1, 2 ou 3; `descricao` na 2ª linha), BotaoEnviar, TelaFormulario (prop `topo`), ToastSucesso ("Salvo com sucesso!"; a tela controla quanto tempo fica), CabecalhoAba (cabeçalho verde das 4 abas, com a barra de status clara)
 │   ├── sos/              ← BotaoSos, SeletorAnimal, ListaSintomas, SeloUrgencia, BotaoLigar192, AvisoAtendimento (RN-G2), ResumoTriagem, UnidadesProximas (recebe a localização da tela; API e os estados), CartaoUnidade (Ligar, Rota e "Vou para esta unidade"), TelefonesUteis (RN-G8). SeloUrgencia tem a versão `compacto` (listas)
-│   ├── ocorrencias/      ← RegistrarOcorrencia (T4: logado registra; deslogado "Entre para salvar a ocorrência"), CartaoOcorrencia (T8), CartaoResumo (T12: PENDENTE → gerando; pronto → cartão + RN-G7)
+│   ├── ocorrencias/      ← RegistrarOcorrencia (T4: logado registra; deslogado "Entre para salvar a ocorrência"), CartaoOcorrencia (T8), CartaoResumo (T12: PENDENTE → gerando; pronto → cartão + RN-G7), FormOcorrencia (T12b: sintomas e a unidade, entre as próximas do lugar da picada)
 │   ├── avistamentos/     ← CartaoAvistamento, FormAvistamento (campos do novo e do editar, como o FormPet do Afetto), CampoLocalizacao ("Usar minha localização")
 │   ├── perfil/           ← só da tela Perfil: PerfilHeader (lápis e "Cancelar"), DadosPessoaisCard, FormDadosPessoais (nome e telefone; o e-mail só aparece), SobreAppCard, ContaCard
 │   ├── EstadoErro.tsx    ← erro com "Tentar novamente" (prop `icone`: a localização usa `location-outline`)
@@ -96,14 +96,14 @@ src/
 │   ├── useUnidades.ts     ← useUnidadesProximas(coordenadas, tipoAnimal): só busca depois do GPS
 │   ├── useConteudo.ts     ← usePrimeirosSocorros(tipoAnimal), staleTime Infinity
 │   ├── useAvistamentos.ts ← useMeusAvistamentos, useAvistamento, useCriarAvistamento, useAtualizarAvistamento, useExcluirAvistamento (invalidam ["avistamentos","meus"])
-│   └── useOcorrencias.ts  ← useMinhasOcorrencias, useOcorrencia (consulta a cada 3 s enquanto PENDENTE: intervaloDoResumo), useCriarOcorrencia, useExcluirOcorrencia
-├── schemas/              ← login, cadastro (+ CAMPOS_LOGIN / CAMPOS_CADASTRO), triagem (OPCOES_HORA_PICADA, um schema por passo, criarParamsResultadoSchema com a RN-G4, ParamsPrimeirosSocorrosSchema, RetornoAoResultadoSchema), avistamento (localização obrigatória e no Brasil, observação até 500, CAMPOS_AVISTAMENTO), editar-perfil (nome e telefone com as regras do cadastro, CAMPOS_EDITAR_PERFIL)
+│   └── useOcorrencias.ts  ← useMinhasOcorrencias, useOcorrencia (consulta a cada 3 s enquanto PENDENTE: intervaloDoResumo), useCriarOcorrencia, useAtualizarOcorrencia, useExcluirOcorrencia
+├── schemas/              ← login, cadastro (+ CAMPOS_LOGIN / CAMPOS_CADASTRO), triagem (OPCOES_HORA_PICADA, um schema por passo, criarParamsResultadoSchema com a RN-G4, ParamsPrimeirosSocorrosSchema, RetornoAoResultadoSchema), avistamento (localização obrigatória e no Brasil, observação até 500, CAMPOS_AVISTAMENTO), editar-perfil (nome e telefone com as regras do cadastro, CAMPOS_EDITAR_PERFIL), editar-ocorrencia (sintomas e unidade, SEM_UNIDADE, CAMPOS_EDITAR_OCORRENCIA)
 ├── services/
 │   ├── autenticacao.service.ts ← autenticacaoService.{entrar, cadastrar, buscarUsuarioLogado, atualizarUsuario (PUT /api/usuarios/me), paraFormulario}
 │   ├── unidade.service.ts      ← unidadeService.buscarProximas (GET /api/unidades/proximas, limite 5)
-│   ├── conteudo.service.ts     ← conteudoService.buscarPrimeirosSocorros: conteúdo LOCAL do MVP-02 §6 (⚠️ revisar com o Ministério da Saúde)
+│   ├── conteudo.service.ts     ← conteudoService.buscarPrimeirosSocorros (GET /api/conteudo/primeiros-socorros/{tipoAnimal}, público; o texto fica no Java)
 │   ├── avistamento.service.ts  ← avistamentoService.{listarMeus (até 50), buscarPorId, criar (dataHora = agora), atualizar (dataHora original), excluir, paraFormulario}
-│   └── ocorrencia.service.ts   ← ocorrenciaService.{criar, listarMinhas (até 50), buscarPorId, excluir}
+│   └── ocorrencia.service.ts   ← ocorrenciaService.{criar, listarMinhas (até 50), buscarPorId, atualizar (PUT: sintomas e unidade; o resto vem do registro), paraFormulario, excluir}
 ├── types/
 │   ├── enums.types.ts    ← enums do contrato como listas `as const` + tipos (TipoAnimal, FaixaEtaria, Urgencia, TipoSoro, TipoUnidade, LocalAvistamento, StatusResumo, Perfil, Sintoma)
 │   ├── usuario.types.ts  ← Usuario, RespostaAutenticacao
@@ -112,7 +112,7 @@ src/
 │   ├── avistamento.types.ts ← Avistamento, DadosAvistamento (schemas do contrato)
 │   └── ocorrencia.types.ts  ← Ocorrencia, DadosOcorrencia (schemas do contrato)
 ├── utils/
-│   ├── rotulos.ts        ← LABEL_* dos enums e da hora da picada, IDADE_FAIXA_ETARIA, ICONE_TIPO_ANIMAL (emoji), SINTOMAS_DE_ALERTA, ehSintomaDeAlerta
+│   ├── rotulos.ts        ← LABEL_* dos enums e da hora da picada, IDADE_FAIXA_ETARIA, ICONE_TIPO_ANIMAL (emoji), SINTOMAS_DE_ALERTA, ehSintomaDeAlerta, alternarSintoma (na ordem do MVP-00 §4.2; triagem e T12b)
 │   ├── data.ts           ← converterDataParaBR, horaPorOpcao (opção da triagem → ISO), tempoDecorrido ("há 25 min"), formatarDataHora (ISO → "DD/MM/AAAA HH:mm" no fuso do aparelho)
 │   ├── mascaras.ts       ← somenteDigitos, mascararTelefone
 │   ├── telefones.ts      ← TELEFONES_UTEIS (RN-G8: 192, 193, 0800 722 6001)
@@ -120,7 +120,7 @@ src/
 │   ├── unidade.ts        ← formatarDistancia ("850 m", "2,4 km", como no Afetto)
 │   ├── cabecalho.ts      ← opcoesCabecalhoNativo (cores da barra nativa do Stack nos dois temas)
 │   ├── versao.ts         ← versaoDoApp (versão + commit de Constants.expoConfig.extra), buildDoApp (número do build e ambiente)
-│   └── urgencia.ts       ← calcularUrgencia (RN-U, MVP-00 §4.3), no aparelho: funciona sem internet; maiorUrgencia (app × servidor)
+│   └── urgencia.ts       ← calcularUrgencia (RN-U, MVP-00 §4.3), no aparelho: funciona sem internet; maiorUrgencia (app × servidor); urgenciaDaOcorrencia (T12)
 ├── testes/
 │   └── clienteDeTeste.ts ← QueryClient dos testes (sem retry e sem o timer de limpeza do cache)
 ├── __tests__/            ← um arquivo por regra ou tela
@@ -187,7 +187,7 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 - Componentes genéricos em `components/ui/`; os de um domínio em `components/sos/`, `components/avistamentos/`, `components/ocorrencias/`; `EstadoVazio`, `EstadoErro` e `RotaProtegida` na raiz de `components/` (como no Afetto).
 - Já existem (MVP-02 §4): `BotaoSos`, `SeletorAnimal`, `ListaSintomas`, `SeloUrgencia`, `BotaoLigar192`, `AvisoAtendimento`, `CartaoUnidade`, mais o `ResumoTriagem` e o `UnidadesProximas`. A faixa etária e a hora da picada usam o `CampoSelecao` (do Afetto), no lugar do `SeletorFaixaEtaria` do MVP-02.
 - Avistamentos: `CartaoAvistamento`, `FormAvistamento` (os campos, usados no novo e no editar) e `CampoLocalizacao`. O `SeletorAnimal` serve à triagem e ao avistamento (prop `label`).
-- Ocorrências: `RegistrarOcorrencia` (T4), `CartaoOcorrencia` (T8) e `CartaoResumo` (T12).
+- Ocorrências: `RegistrarOcorrencia` (T4), `CartaoOcorrencia` (T8), `CartaoResumo` (T12) e `FormOcorrencia` (T12b).
 
 ---
 
@@ -196,7 +196,7 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 - **Páginas (`src/app/`):** layout e estado local de UI. **Nunca** chamam HTTP direto: leitura por `useQuery`, escrita por `useMutation`, sempre via hooks.
 - **Hooks de dados:** só `useQuery`/`useMutation` chamando o service; devolvem o objeto do TanStack como está. Invalidação com `useQueryClient()` **dentro do hook** (nunca importar o `queryClient` direto). Sem JSX e **sem navegar** — a navegação fica no `onSuccess` da tela.
 - **Hooks de tela** (`useTriagem`, `useLocalizacao`): estado local e regra de um fluxo de UI, expondo um objeto próprio.
-- **Services:** chamadas HTTP e conversão do payload (máscara, data, lista paginada). Padrão objeto (`avistamentoService.criar`). Comentar todo contorno de limitação da API. Exceção do MVP: `conteudo.service.ts` devolve o conteúdo **local** de primeiros socorros numa `Promise`, para o hook seguir o padrão `useQuery`.
+- **Services:** chamadas HTTP e conversão do payload (máscara, data, lista paginada). Padrão objeto (`avistamentoService.criar`). Comentar todo contorno de limitação da API. Todo dado que a tela mostra vem da API; o que fica no aparelho de propósito (urgência do SOS, telefones do RN-G8) está listado no README.
 - **Schemas:** só Zod, exportando o tipo inferido. Use as listas de `types/enums.types.ts` no `z.enum`.
 - **Utils:** funções puras, sem hooks e sem I/O, **sempre com teste**.
 - **Context:** um único `SessaoContext` para a sessão.
@@ -212,13 +212,15 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 - **RN-G2:** o texto fixo "Procure atendimento médico imediatamente." (`AvisoAtendimento`) aparece no resultado (T4), nos primeiros socorros (T5) e na ocorrência (T12).
 - **RN-G3:** em `EMERGENCIA`, o `BotaoLigar192` fica **no topo**, antes de tudo. Nos outros níveis, no fim da tela.
 - **Unidades no resultado:** GPS negado → "Ative a localização para ver as unidades próximas" + "Tentar novamente" (negada de vez: "Abrir as configurações"); GPS sem sinal em 15 s → pede para conferir o GPS; erro da API → `EstadoErro`; lista vazia → RN-S4. Nenhuma dessas falhas esconde a urgência, o 192 ou os primeiros socorros.
-- **Ocorrência (T12):** a urgência é a **maior** entre a do servidor e a do app (a mesma RN-U, com a hora do registro): nunca rebaixar. Resumo `PENDENTE` → "Gerando resumo para a unidade…" e nova consulta a cada 3 s; `PRONTO` ou `MODELO_PADRAO` → cartão "Mostre este resumo na recepção" + o `avisoResumo` da API (RN-G7; sem ele, o texto fixo).
+- **Ocorrência (T12):** a urgência é a **maior** entre a do servidor e a do app (`urgenciaDaOcorrencia`: a mesma RN-U, com a hora do registro): nunca rebaixar. Regra de negócio fica em `utils/`, nunca dentro da tela. Resumo `PENDENTE` → "Gerando resumo para a unidade…" e nova consulta a cada 3 s; `PRONTO` ou `MODELO_PADRAO` → cartão "Mostre este resumo na recepção" + o `avisoResumo` da API (RN-G7; sem ele, o texto fixo).
+- **Atualizar a ocorrência (T12b):** só com o resumo pronto (com `PENDENTE`, o botão some: a API responderia 409). A tela edita os sintomas e a unidade (entre as próximas do lugar da picada, ou "Ainda não escolhi"); animal, faixa etária, hora e lugar vão como no registro. Salvou → `router.back()`, e o detalhe mostra "Gerando resumo…".
+- **Primeiros socorros (T5):** vêm da API. Sem internet, o erro aparece no lugar do texto, mas o aviso RN-G2 e os telefones úteis continuam na tela.
 - **Registrar a ocorrência (T4)** exige as coordenadas do GPS (contrato): sem elas, o botão fica desligado e a tela explica. O erro da API aparece embaixo do botão.
 - **Excluir** sempre com confirmação (`Alert.alert`, como no Afetto). O `Alert` do React Native não aparece no navegador: teste a exclusão no celular.
 - **Nunca** mostrar "sem urgência", "não é perigoso", dose ou remédio.
 - **Acessibilidade:** alvo de toque com 48 dp ou mais, `accessibilityLabel` em todo botão com ícone, contraste alto.
 - Segurança de área no topo: padding fixo nos cabeçalhos (`pt-14`), como no Afetto.
-- **Cabeçalho das abas:** sempre o `CabecalhoAba`. Com a aba em foco (`useIsFocused`), a barra de status fica clara: os ícones escuros do tema claro quase somem no verde. Nas outras telas (fundo creme), vale a barra do `_layout.tsx` raiz, que segue o tema.
+- **Cabeçalho das abas:** sempre o `CabecalhoAba`. Com a aba em foco (`useFocusEffect` do expo-router), a barra de status fica clara: os ícones escuros do tema claro quase somem no verde. Nas outras telas (fundo creme), vale a barra do `_layout.tsx` raiz, que segue o tema.
 - **Ligar e Rota** (`Linking.openURL`): se o aparelho não abrir o discador ou o mapa (ex.: tablet sem chip), um `Alert` mostra o número ou o endereço. Nunca deixar o toque sem resposta.
 
 ---
@@ -252,7 +254,7 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 
 ## 10. Navegação
 
-- Toda navegação pelo `expo-router` (`router.push`, `router.replace`, `router.back`, `<Redirect>`).
+- Toda navegação pelo `expo-router` (`router.push`, `router.replace`, `router.back`, `<Redirect>`, `useFocusEffect`). Nada importado direto do `@react-navigation` (ele só está no `package.json` porque o expo-router precisa).
 - Depois de entrar (login ou cadastro): `router.replace("/(tabs)")`. Depois de sair: `router.replace("/login")`.
 - **"Entre para salvar a ocorrência" (decisão de 09/11):** o resultado manda as respostas da triagem como params do `/login` (e o login, do `/cadastro`). Depois de entrar, `router.dismissTo({ pathname: "/sos/resultado", params })` volta ao resultado que já estava aberto, sem empilhar outro igual. Nada é registrado sozinho: a pessoa toca em "Registrar ocorrência".
 - Registrou: `router.replace({ pathname: "/ocorrencias/[id]", params: { id } })` (MVP-02 §3.2).
@@ -285,7 +287,7 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 
 - **Enums:** os valores trafegam em MAIÚSCULAS, exatamente como no contrato (`types/enums.types.ts`); a tela mostra os rótulos de `utils/rotulos.ts`.
 - **Sintomas (§4.2):** 12 códigos; 8 são sinais de alerta (`SINTOMAS_DE_ALERTA`). Teste: `rotulos.test.ts`.
-- **RN-U (§4.3):** `utils/urgencia.ts` calcula a urgência **no app**, sem internet. Os **10 casos** do §4.3 são obrigatórios em `urgencia.test.ts`, os mesmos do JUnit do Java. **Não mudar a regra sem combinar com o Java.** Entre a urgência do servidor e a do app, vale a maior (`maiorUrgencia`, T12): nunca rebaixar.
+- **RN-U (§4.3):** `utils/urgencia.ts` calcula a urgência **no app**, sem internet. Os **10 casos** do §4.3 são obrigatórios em `urgencia.test.ts`, os mesmos do JUnit do Java. **Não mudar a regra sem combinar com o Java.** Entre a urgência do servidor e a do app, vale a maior (`urgenciaDaOcorrencia`, T12): nunca rebaixar.
 - **RN-S (§4.4):** compatibilidade e ordenação das unidades são do Java. O app só mostra; a lista vazia é válida e mostra "Nenhuma unidade com soro encontrada. Ligue 192." (RN-S4). Na abelha não existe soro: a API devolve hospitais e UPAs, e o app fala em "atendimento de urgência".
 - **RN-G1 a RN-G8 (§4.5):** SOS sem login; texto fixo no resultado; 192 no topo em `EMERGENCIA`; hora da picada sem futuro e até 72 h; avistamento só do dono; resumo por IA sem dados pessoais e com o aviso "Resumo gerado por IA. Não substitui avaliação profissional."; telefones úteis 192, 193 e 0800 722 6001.
 - Implementações e testes de uma regra citam o ID dela em comentário (ex.: `// RN-U2`).
@@ -337,27 +339,29 @@ O Verde `#14946A` e o Âmbar `#FFB300` da paleta só aparecem dentro do logo e d
 
 ## Ajustes em relação ao MVP-02 e ao Afetto (decididos pelo time em 06 e 07/11)
 
-| No MVP-02                                                       | No código (como no Afetto)                                                                        |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `(tabs)` dentro de `(app)`                                      | `(tabs)` na raiz, com a `RotaProtegida` no layout dela                                            |
-| Início em `(tabs)/inicio.tsx`                                   | `(tabs)/index.tsx`                                                                                |
-| `api/cliente.ts`                                                | `api/api.ts`                                                                                      |
-| `auth.service.ts`, `usuarios.service.ts`, services no plural    | `autenticacao.service.ts` e services no singular (`unidade`, `ocorrencia`, `avistamento`)         |
-| `useLogin`, `useCadastro`                                       | `useEntrar`, `useCadastrar` (em `useAutenticacao.ts`)                                             |
-| `useUsuarioLogado`, `useAtualizarUsuario`                       | mesmos nomes, em `usePerfil.ts`                                                                   |
-| `perfil.schema.ts`                                              | `editar-perfil.schema.ts` (`EditarPerfilSchema`, como no Afetto)                                  |
-| `utils/datas.ts`                                                | `utils/data.ts`                                                                                   |
-| `types/enums.ts`, `usuario.ts`…                                 | `types/*.types.ts`                                                                                |
-| `EstadoVazio`, `EstadoErro`, `RotaProtegida` em `components/ui` | na raiz de `components/`                                                                          |
-| `SeletorFaixaEtaria`                                            | `CampoSelecao` (componente do Afetto), com a idade na 2ª linha                                    |
-| RN-S4 também na abelha ("…com soro…")                           | Na abelha: "Nenhum hospital ou UPA encontrado perto de você. Ligue 192." (não existe soro)        |
-| `rotuloTipoAnimal()` etc.                                       | constantes `LABEL_*` (como o `LABEL_ESPECIE` do Afetto); `ehSintomaDeAlerta()` continua função    |
-| `extrairMensagemErro`, `extrairErrosDeCampo`                    | `mensagemDaApi`, `errosDeCampoDaApi` (nomes do `erros.ts` do Afetto)                              |
-| Hash por `EXPO_PUBLIC_COMMIT_HASH` definido no terminal         | `app.config.ts` lendo `EAS_BUILD_GIT_COMMIT_HASH` (ou o git)                                      |
-| Fonte padrão do sistema                                         | Inter em `assets/fonts` (a rubrica pede fontes personalizadas)                                    |
-| Paleta do §7 (`#1B5E20`, `#4C8C4A`, `#263238`)                  | Paleta da identidade visual (`#0B6E4F`, `#2BB673`, `#1E2A2F`); urgência e tema escuro seguem o §7 |
-| Revalidar a sessão antes de abrir o app (como no Afetto)        | Sessão salva vale na hora; conferência com a API em segundo plano (seção 9)                       |
-| Nome "SOS Peçonha" (`sos-peconha-app`, `@sospeconha:token`)     | **Antídoto** (`antidoto-app`, `@antidoto:token`, `@antidoto:usuario`) — decisão de 07/11          |
+| No MVP-02                                                       | No código (como no Afetto)                                                                                               |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `(tabs)` dentro de `(app)`                                      | `(tabs)` na raiz, com a `RotaProtegida` no layout dela                                                                   |
+| Início em `(tabs)/inicio.tsx`                                   | `(tabs)/index.tsx`                                                                                                       |
+| `api/cliente.ts`                                                | `api/api.ts`                                                                                                             |
+| `auth.service.ts`, `usuarios.service.ts`, services no plural    | `autenticacao.service.ts` e services no singular (`unidade`, `ocorrencia`, `avistamento`)                                |
+| `useLogin`, `useCadastro`                                       | `useEntrar`, `useCadastrar` (em `useAutenticacao.ts`)                                                                    |
+| `useUsuarioLogado`, `useAtualizarUsuario`                       | mesmos nomes, em `usePerfil.ts`                                                                                          |
+| `perfil.schema.ts`                                              | `editar-perfil.schema.ts` (`EditarPerfilSchema`, como no Afetto)                                                         |
+| `utils/datas.ts`                                                | `utils/data.ts`                                                                                                          |
+| `types/enums.ts`, `usuario.ts`…                                 | `types/*.types.ts`                                                                                                       |
+| `EstadoVazio`, `EstadoErro`, `RotaProtegida` em `components/ui` | na raiz de `components/`                                                                                                 |
+| `SeletorFaixaEtaria`                                            | `CampoSelecao` (componente do Afetto), com a idade na 2ª linha                                                           |
+| RN-S4 também na abelha ("…com soro…")                           | Na abelha: "Nenhum hospital ou UPA encontrado perto de você. Ligue 192." (não existe soro)                               |
+| `rotuloTipoAnimal()` etc.                                       | constantes `LABEL_*` (como o `LABEL_ESPECIE` do Afetto); `ehSintomaDeAlerta()` continua função                           |
+| `extrairMensagemErro`, `extrairErrosDeCampo`                    | `mensagemDaApi`, `errosDeCampoDaApi` (nomes do `erros.ts` do Afetto)                                                     |
+| Hash por `EXPO_PUBLIC_COMMIT_HASH` definido no terminal         | `app.config.ts` lendo `EAS_BUILD_GIT_COMMIT_HASH` (ou o git)                                                             |
+| Fonte padrão do sistema                                         | Inter em `assets/fonts` (a rubrica pede fontes personalizadas)                                                           |
+| Paleta do §7 (`#1B5E20`, `#4C8C4A`, `#263238`)                  | Paleta da identidade visual (`#0B6E4F`, `#2BB673`, `#1E2A2F`); urgência e tema escuro seguem o §7                        |
+| Revalidar a sessão antes de abrir o app (como no Afetto)        | Sessão salva vale na hora; conferência com a API em segundo plano (seção 9)                                              |
+| Nome "SOS Peçonha" (`sos-peconha-app`, `@sospeconha:token`)     | **Antídoto** (`antidoto-app`, `@antidoto:token`, `@antidoto:usuario`) — decisão de 07/11                                 |
+| Primeiros socorros locais no app (MVP-02 §6)                    | `GET /api/conteudo/primeiros-socorros/{tipoAnimal}` (público): todo dado que a tela mostra vem da API — decisão de 12/11 |
+| Ocorrência sem edição                                           | T12b: `PUT /api/ocorrencias/{id}` com os sintomas e a unidade; a ocorrência ganha o CRUD completo — decisão de 12/11     |
 
 ---
 

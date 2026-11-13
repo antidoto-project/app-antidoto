@@ -28,13 +28,9 @@ jest.mock("expo-router", () => ({
   },
   Redirect: jest.fn(() => null),
   useLocalSearchParams: jest.fn(() => ({})),
-}));
-
-// Fora de um navegador de verdade, a tela conta como em foco (o CabecalhoAba usa
-// o useIsFocused para clarear a barra de status só na aba aberta).
-jest.mock("@react-navigation/native", () => ({
-  ...jest.requireActual("@react-navigation/native"),
-  useIsFocused: jest.fn(() => true),
+  // Fora de um navegador de verdade, a tela conta como em foco: o efeito roda ao
+  // montar e a limpeza ao desmontar (o CabecalhoAba clareia a barra de status assim)
+  useFocusEffect: jest.fn((efeito) => require("react").useEffect(() => efeito(), [efeito])),
 }));
 
 // AsyncStorage em memória (mock oficial da biblioteca), para a sessão nos testes.

@@ -1,5 +1,6 @@
 import type { FaixaEtaria, Sintoma, TipoAnimal, Urgencia } from "@/types/enums.types";
-import { calcularUrgencia, maiorUrgencia } from "@/utils/urgencia";
+import type { Ocorrencia } from "@/types/ocorrencia.types";
+import { calcularUrgencia, maiorUrgencia, urgenciaDaOcorrencia } from "@/utils/urgencia";
 
 const AGORA = new Date("2026-11-09T21:00:00.000Z");
 const MINUTO = 60_000;
@@ -91,5 +92,51 @@ describe("maiorUrgencia (app × servidor: nunca rebaixar)", () => {
     ["MODERADA", "MODERADA", "MODERADA"],
   ] as [Urgencia, Urgencia, Urgencia][])("%s e %s → %s", (a, b, esperado) => {
     expect(maiorUrgencia(a, b)).toBe(esperado);
+  });
+});
+
+describe("urgenciaDaOcorrencia (T12: a do servidor, nunca rebaixada)", () => {
+  const OCORRENCIA: Ocorrencia = {
+    id: 1,
+    tipoAnimal: "ESCORPIAO",
+    faixaEtaria: "ADULTO",
+    sintomas: [],
+    horaPicada: "2026-11-09T22:00:00.000Z",
+    latitude: -23.56,
+    longitude: -46.65,
+    urgencia: "MODERADA",
+    motivos: ["Avaliação necessária"],
+    ligar192: false,
+    unidadeId: null,
+    unidadeNome: null,
+    statusResumo: "PRONTO",
+    resumo: "…",
+    avisoResumo: null,
+    aviso: null,
+    criadoEm: "2026-11-09T22:20:00.000Z",
+  };
+
+  it("igual à do app: vale a do servidor, com os motivos dele", () => {
+    expect(urgenciaDaOcorrencia(OCORRENCIA)).toEqual({
+      urgencia: "MODERADA",
+      motivos: ["Avaliação necessária"],
+      ligar192: false,
+    });
+  });
+
+  it("servidor acima (ex.: depois de uma atualização, com a hora dela): vale a do servidor", () => {
+    const atualizada = { ...OCORRENCIA, urgencia: "ALTA" as const, motivos: ["Mais de 3 horas"] };
+
+    expect(urgenciaDaOcorrencia(atualizada).urgencia).toBe("ALTA");
+  });
+
+  it("app acima: vale a do app, com os motivos do app e o 192 no topo (RN-G3)", () => {
+    const comAlerta = { ...OCORRENCIA, sintomas: ["SANGRAMENTO" as const] };
+
+    expect(urgenciaDaOcorrencia(comAlerta)).toEqual({
+      urgencia: "EMERGENCIA",
+      motivos: ["Sinal de alerta"],
+      ligar192: true,
+    });
   });
 });

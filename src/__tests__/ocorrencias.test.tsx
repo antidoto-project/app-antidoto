@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { Alert, type AlertButton } from "react-native";
 
 import { api } from "@/api/api";
-import TelaOcorrencia from "@/app/(app)/ocorrencias/[id]";
+import TelaOcorrencia from "@/app/(app)/ocorrencias/[id]/index";
 import TelaOcorrencias from "@/app/(tabs)/ocorrencias";
 import { intervaloDoResumo } from "@/hooks/useOcorrencias";
 import { criarClienteDeTeste } from "@/testes/clienteDeTeste";

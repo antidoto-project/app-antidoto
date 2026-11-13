@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import type { EditarOcorrenciaInput } from "@/schemas/editar-ocorrencia.schema";
 import { ocorrenciaService } from "@/services/ocorrencia.service";
 import type { DadosOcorrencia, Ocorrencia } from "@/types/ocorrencia.types";
 
@@ -43,6 +44,20 @@ export function useCriarOcorrencia() {
     mutationFn: (dados: DadosOcorrencia) => ocorrenciaService.criar(dados),
     onSuccess: (ocorrencia) => {
       // O detalhe abre na hora com o que o POST devolveu (PENDENTE)
+      queryClient.setQueryData([CHAVE_OCORRENCIAS, ocorrencia.id], ocorrencia);
+      return queryClient.invalidateQueries({ queryKey: CHAVE_MINHAS_OCORRENCIAS });
+    },
+  });
+}
+
+export function useAtualizarOcorrencia() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ ocorrencia, dados }: { ocorrencia: Ocorrencia; dados: EditarOcorrenciaInput }) =>
+      ocorrenciaService.atualizar(ocorrencia, dados),
+    onSuccess: (ocorrencia) => {
+      // O detalhe volta com a urgência nova e o resumo PENDENTE, e consulta até ficar pronto
       queryClient.setQueryData([CHAVE_OCORRENCIAS, ocorrencia.id], ocorrencia);
       return queryClient.invalidateQueries({ queryKey: CHAVE_MINHAS_OCORRENCIAS });
     },

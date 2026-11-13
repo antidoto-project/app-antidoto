@@ -5,8 +5,9 @@ import {
   PassoQuemQuandoSchema,
   type OpcaoHoraPicada,
 } from "@/schemas/triagem.schema";
-import { SINTOMAS, type FaixaEtaria, type Sintoma, type TipoAnimal } from "@/types/enums.types";
+import type { FaixaEtaria, Sintoma, TipoAnimal } from "@/types/enums.types";
 import { horaPorOpcao } from "@/utils/data";
+import { alternarSintoma as alternarSintomaNaLista } from "@/utils/rotulos";
 
 export const TOTAL_PASSOS_TRIAGEM = 3;
 
@@ -54,12 +55,8 @@ export function useTriagem() {
     limparErro("opcaoHora");
   }
 
-  // Mantém a ordem do MVP-00 §4.2, seja qual for a ordem dos toques
   function alternarSintoma(sintoma: Sintoma) {
-    setSintomas((atuais) => {
-      const marcado = atuais.includes(sintoma);
-      return SINTOMAS.filter((item) => (item === sintoma ? !marcado : atuais.includes(item)));
-    });
+    setSintomas((atuais) => alternarSintomaNaLista(atuais, sintoma));
   }
 
   /** Confere o passo atual; mostra os erros dele e devolve se está tudo certo. */

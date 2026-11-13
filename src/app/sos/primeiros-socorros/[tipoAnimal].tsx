@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Redirect, useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 
+import { mensagemDaApi } from "@/api/erros";
 import { EstadoErro } from "@/components/EstadoErro";
 import { AvisoAtendimento } from "@/components/sos/AvisoAtendimento";
 import { TelefonesUteis } from "@/components/sos/TelefonesUteis";
@@ -13,8 +14,9 @@ import { ICONE_TIPO_ANIMAL, LABEL_TIPO_ANIMAL } from "@/utils/rotulos";
 type NomeIcone = React.ComponentProps<typeof Ionicons>["name"];
 
 /**
- * T5 — Primeiros socorros do animal (conteúdo local, MVP-02 §6): funciona sem
- * internet e sem login (RN-G1). Sempre com o aviso RN-G2 e os telefones úteis.
+ * T5 — Primeiros socorros do animal (GET da API, MVP-02 §6), sem login (RN-G1).
+ * O aviso RN-G2 e os telefones úteis ficam na tela em qualquer estado: sem
+ * internet, o texto não abre, mas o 192 continua a um toque.
  */
 export default function TelaPrimeirosSocorros() {
   const leitura = ParamsPrimeirosSocorrosSchema.safeParse(useLocalSearchParams());
@@ -24,24 +26,7 @@ export default function TelaPrimeirosSocorros() {
 }
 
 function PrimeirosSocorros({ tipoAnimal }: { tipoAnimal: TipoAnimal }) {
-  const { data: conteudo, isPending, isError, refetch } = usePrimeirosSocorros(tipoAnimal);
-
-  if (isPending) {
-    return (
-      <View className="flex-1 items-center justify-center bg-fundo dark:bg-fundo-escuro">
-        <ActivityIndicator color="#0B6E4F" size="large" />
-      </View>
-    );
-  }
-
-  if (isError) {
-    return (
-      <EstadoErro
-        mensagem="Não deu para abrir os primeiros socorros."
-        onTentarNovamente={() => refetch()}
-      />
-    );
-  }
+  const { data: conteudo, isPending, isError, error, refetch } = usePrimeirosSocorros(tipoAnimal);
 
   return (
     <ScrollView
@@ -64,19 +49,37 @@ function PrimeirosSocorros({ tipoAnimal }: { tipoAnimal: TipoAnimal }) {
       {/* RN-G2 */}
       <AvisoAtendimento />
 
-      <ListaOrientacoes
-        titulo="Faça"
-        icone="checkmark-circle"
-        cor="#0B6E4F"
-        itens={conteudo.faca}
-      />
-      <ListaOrientacoes
-        titulo="NÃO faça"
-        icone="close-circle"
-        cor="#1E2A2F"
-        itens={conteudo.naoFaca}
-      />
-      <ListaOrientacoes titulo="Atenção" icone="warning" cor="#EF6C00" itens={conteudo.atencao} />
+      {isPending ? (
+        <View className="flex-row items-center justify-center gap-3 rounded-2xl bg-white py-8 dark:bg-gray-800">
+          <ActivityIndicator color="#0B6E4F" />
+          <Text className="font-inter text-base text-texto dark:text-texto-escuro">
+            Carregando os primeiros socorros…
+          </Text>
+        </View>
+      ) : isError ? (
+        <EstadoErro mensagem={mensagemDaApi(error)} onTentarNovamente={() => refetch()} />
+      ) : (
+        <>
+          <ListaOrientacoes
+            titulo="Faça"
+            icone="checkmark-circle"
+            cor="#0B6E4F"
+            itens={conteudo.faca}
+          />
+          <ListaOrientacoes
+            titulo="NÃO faça"
+            icone="close-circle"
+            cor="#1E2A2F"
+            itens={conteudo.naoFaca}
+          />
+          <ListaOrientacoes
+            titulo="Atenção"
+            icone="warning"
+            cor="#EF6C00"
+            itens={conteudo.atencao}
+          />
+        </>
+      )}
 
       {/* RN-G8: 192, 193 e Disque-Intoxicação */}
       <TelefonesUteis />

@@ -1,6 +1,6 @@
-import { useIsFocused } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import type { ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { Text, View } from "react-native";
 
 type Props = {
@@ -17,7 +17,15 @@ type Props = {
  * e volta o do _layout.tsx raiz, que segue o tema.
  */
 export function CabecalhoAba({ titulo, subtitulo, acao }: Props) {
-  const focada = useIsFocused();
+  const [focada, setFocada] = useState(false);
+
+  // Navegação só pelo expo-router: o foco da aba vem do useFocusEffect dele
+  useFocusEffect(
+    useCallback(() => {
+      setFocada(true);
+      return () => setFocada(false);
+    }, [])
+  );
 
   return (
     <View className="gap-1 bg-marca px-6 pb-6 pt-14">

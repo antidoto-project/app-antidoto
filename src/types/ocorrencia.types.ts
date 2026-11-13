@@ -1,6 +1,6 @@
 import type { FaixaEtaria, Sintoma, StatusResumo, TipoAnimal, Urgencia } from "@/types/enums.types";
 
-/** Schema `OcorrenciaRequest` do contrato (POST /api/ocorrencias). */
+/** Schema `OcorrenciaRequest` do contrato (POST /api/ocorrencias e PUT /api/ocorrencias/{id}). */
 export type DadosOcorrencia = {
   tipoAnimal: TipoAnimal;
   faixaEtaria: FaixaEtaria;

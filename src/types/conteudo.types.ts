@@ -1,6 +1,6 @@
 import type { TipoAnimal } from "@/types/enums.types";
 
-/** Primeiros socorros de um animal (conteúdo local do MVP-02 §6). */
+/** Primeiros socorros de um animal (schema PrimeirosSocorros do contrato, MVP-02 §6). */
 export type PrimeirosSocorros = {
   tipoAnimal: TipoAnimal;
   faca: string[];

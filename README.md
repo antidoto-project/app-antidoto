@@ -33,8 +33,19 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 
 1. **SOS sem login:** 3 perguntas (animal, quem foi picado e quando, sintomas) e a **urgência calculada no próprio app**, mesmo sem internet.
 2. **Unidades próximas com o soro compatível**, com os botões "Ligar" e "Rota".
-3. **Registrar a ocorrência** (logado): a API Java gera, em segundo plano, um **resumo de pré-atendimento com IA** para mostrar na recepção.
+3. **Ocorrências** (logado): registrar, ver o histórico, **atualizar** (sintomas novos ou outra unidade) e remover. A cada registro ou atualização, a API Java recalcula a urgência e gera, em segundo plano, um **resumo de pré-atendimento com IA** para mostrar na recepção.
 4. **Avistamentos** (logado): cadastro, lista, edição e exclusão dos animais peçonhentos vistos no bairro.
+
+Os dois CRUDs (ocorrências e avistamentos), o perfil, as unidades e os primeiros socorros vêm da API Java.
+
+### O que é do aparelho, de propósito
+
+| No app                                        | Por quê                                                                                                                                                                                                                |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SOS e primeiros socorros abrem **sem login**  | RN-G1: quem foi picado não pode parar para criar conta. As abas e as telas de quem está logado têm `RotaProtegida`                                                                                                     |
+| A **urgência do SOS** é calculada no aparelho | O resultado precisa aparecer **sem internet**. É a mesma regra (RN-U) da API, com os mesmos 10 casos de teste; a ocorrência registrada mostra a que a API calculou (o app só confere que ela não fica abaixo da regra) |
+| **Telefones úteis** (192, 193, 0800 722 6001) | RN-G8: números públicos de emergência, que precisam funcionar sem internet                                                                                                                                             |
+| Integrantes na tela **Sobre o App**           | Informação do projeto, não dado do usuário                                                                                                                                                                             |
 
 ## 🚧 Andamento
 
@@ -48,6 +59,7 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 | 6     | Registrar ocorrência (com a volta pelo login), resumo por IA consultado a cada 3 s e aba Ocorrências                                          | ✅                                                                                    |
 | 7     | Perfil (editar nome e telefone) e Sobre o App (versão, build e hash do commit, integrantes)                                                   | ✅                                                                                    |
 | 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | 🔜 app apontando para a API no Render (`eas.json`); falta o APK no Firebase e o vídeo |
+| 8.2   | Primeiros socorros pela API e atualizar a ocorrência (sintomas e unidade), completando o CRUD                                                 | ✅                                                                                    |
 
 ---
 
@@ -96,7 +108,7 @@ npm test           # testes (Jest)
 ```
 src/
 ├── api/         cliente da API (axios + JWT), erros, paginação, QueryClient
-├── app/         telas e rotas (expo-router): login, cadastro, Início, Perfil
+├── app/         telas e rotas (expo-router): login e cadastro, SOS (triagem, resultado, primeiros socorros), abas (Início, Avistamentos, Ocorrências, Perfil) e as telas de quem está logado
 ├── components/  componentes de tela e de formulário
 ├── context/     sessão (token e usuário)
 ├── hooks/       dados (TanStack Query)

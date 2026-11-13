@@ -1,5 +1,5 @@
-import { useIsFocused } from "@react-navigation/native";
 import { render, screen } from "@testing-library/react-native";
+import { useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Text } from "react-native";
 
@@ -9,7 +9,7 @@ import { CabecalhoAba } from "@/components/ui/CabecalhoAba";
 jest.mock("expo-status-bar", () => ({ StatusBar: jest.fn(() => null) }));
 
 const mockStatusBar = StatusBar as unknown as jest.Mock;
-const mockFocada = useIsFocused as jest.Mock;
+const mockFocusEffect = useFocusEffect as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -30,11 +30,12 @@ describe("CabecalhoAba", () => {
     render(<CabecalhoAba titulo="Início" />);
 
     expect(mockStatusBar).toHaveBeenCalled();
-    expect(mockStatusBar.mock.calls[0][0]).toEqual({ style: "light" });
+    expect(mockStatusBar.mock.calls.at(-1)[0]).toEqual({ style: "light" });
   });
 
   it("fora de foco (outra tela por cima), devolve a barra para o _layout raiz", () => {
-    mockFocada.mockReturnValueOnce(false);
+    // Sem foco, o efeito do useFocusEffect não roda
+    mockFocusEffect.mockImplementationOnce(() => {});
 
     render(<CabecalhoAba titulo="Início" />);
 

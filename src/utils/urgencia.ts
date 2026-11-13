@@ -1,4 +1,5 @@
 import type { FaixaEtaria, Sintoma, TipoAnimal, Urgencia } from "@/types/enums.types";
+import type { Ocorrencia } from "@/types/ocorrencia.types";
 import { ehSintomaDeAlerta } from "@/utils/rotulos";
 
 /*
@@ -71,5 +72,24 @@ export function calcularUrgencia(
   // RN-U6
   if (motivos.length === 0) motivos.push("Avaliação necessária");
 
+  return { urgencia, motivos, ligar192: urgencia === "EMERGENCIA" };
+}
+
+/**
+ * A urgência que a ocorrência mostra (T12): a do servidor, a não ser que a do app
+ * (mesma RN-U, com a hora do registro) seja maior. Nunca rebaixar (CLAUDE.md §12).
+ * Depois de uma atualização, o servidor calcula com a hora da atualização, que só
+ * pode subir o nível: a do servidor vale.
+ */
+export function urgenciaDaOcorrencia(ocorrencia: Ocorrencia): ResultadoUrgencia {
+  const doApp = calcularUrgencia(
+    ocorrencia.tipoAnimal,
+    ocorrencia.faixaEtaria,
+    ocorrencia.sintomas,
+    new Date(ocorrencia.horaPicada),
+    new Date(ocorrencia.criadoEm)
+  );
+  const urgencia = maiorUrgencia(ocorrencia.urgencia, doApp.urgencia);
+  const motivos = urgencia === ocorrencia.urgencia ? ocorrencia.motivos : doApp.motivos;
   return { urgencia, motivos, ligar192: urgencia === "EMERGENCIA" };
 }

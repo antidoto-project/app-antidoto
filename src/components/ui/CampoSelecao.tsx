@@ -13,11 +13,11 @@ type Props<T extends string> = {
   value?: T;
   onChange: (value: T) => void;
   error?: string;
-  /** Quebra as opções em linhas de 2 ou 3; sem isso, todas ficam numa linha só. */
-  colunas?: 2 | 3;
+  /** Quebra as opções em linhas de 1, 2 ou 3; sem isso, todas ficam numa linha só. */
+  colunas?: 1 | 2 | 3;
 };
 
-const LARGURA_POR_COLUNAS = { 2: "w-[48%]", 3: "w-[31%]" } as const;
+const LARGURA_POR_COLUNAS = { 1: "w-full", 2: "w-[48%]", 3: "w-[31%]" } as const;
 
 /**
  * Escolha de uma opção entre poucas, em botões (mesmo componente do Afetto,
