@@ -128,7 +128,39 @@ As convenções do projeto estão no [`CLAUDE.md`](CLAUDE.md).
 
 ---
 
+## 🤖 Uso de IA generativa
+
+A Global Solution permite IA generativa como apoio e pede que ela seja declarada. Usamos duas, com papéis diferentes.
+
+### No desenvolvimento: Claude (Anthropic)
+
+| Para quê                           | Como                                                                                                                                                                 |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Planejar o MVP em passos           | A partir dos documentos do grupo (MVP-00, MVP-02 e o contrato da API), um passo por vez: login, SOS, unidades, avistamentos, ocorrências, perfil, publicação         |
+| Escrever e revisar o código do app | Seguindo o padrão de código do nosso Challenge (Afetto), registrado no [`CLAUDE.md`](CLAUDE.md): mesmas pastas, camadas e nomes                                      |
+| Testes automatizados               | Testes com Jest e Testing Library para as regras (RN-U, RN-S, RN-G) e as telas                                                                                       |
+| API Java usada pelo app            | A API no Render (Spring Boot), feita a partir do documento MVP-01 só para o app consumir                                                                             |
+| Revisar contra a rubrica           | Conferência do código com os critérios da disciplina, o que levou a trazer os primeiros socorros para a API, completar o CRUD da ocorrência e criar a troca de senha |
+| Documentação e erros               | README, `CLAUDE.md` e leitura de logs do Expo e do Render para achar a causa de erros                                                                                |
+
+Como o grupo manteve o controle:
+
+- Cada passo veio com a descrição do que mudou; o grupo revisou, rodou no celular e fez o commit.
+- As decisões de produto ficaram com o grupo: o escopo do MVP, o que é do aparelho de propósito (urgência offline, telefones do RN-G8) e o que ficou de fora ("esqueci a senha", que exigiria envio de e-mail).
+- Nada vai para o repositório sem passar no `tsc`, no lint e nos testes (seção "Qualidade").
+
+### No produto: Groq (modelo `openai/gpt-oss-120b`)
+
+A API Java usa IA para escrever o **resumo de pré-atendimento** que a pessoa mostra na recepção (tela da ocorrência). Para ser seguro:
+
+- Vão para a IA só os dados da triagem (animal, faixa etária, hora, sintomas, urgência, unidade): **nada de nome, e-mail, telefone ou localização** (RN-G6).
+- As instruções proíbem sugerir tratamento, remédio ou dose, e mandam copiar a urgência e os motivos como vieram.
+- A API confere a resposta e descarta a que fala de dose, traz outro nível de urgência, inventa sinal de alerta ou passa de 6 segundos. Nesses casos vale um **modelo de texto** fixo, e a ocorrência nunca fica sem resumo.
+- A **urgência é sempre calculada pela regra (RN-U)**, nunca pela IA. A tela mostra o aviso "Resumo gerado por IA. Não substitui avaliação profissional." (RN-G7).
+- A chave da IA fica só na API (variável de ambiente no Render): o app não tem nenhuma chave.
+
+---
+
 ## 📝 A completar antes da entrega
 
 - **Link do vídeo** (até 5 minutos, no YouTube).
-- **Uso de IA generativa:** a Global Solution pede uma seção listando as ferramentas usadas e para quê.
