@@ -42,6 +42,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8e797e2d-619f-4260-9072-695043c21b82"
+      }
+    },
+    "owner": "iagoliziero"
   }
 }
