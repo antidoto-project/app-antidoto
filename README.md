@@ -12,9 +12,12 @@ Quem é picado por um escorpião, uma cobra, uma aranha, uma lagarta ou uma abel
 
 > ⚠️ O app **nunca** diz que a pessoa não precisa de atendimento e **nunca** indica dose ou remédio.
 
-|                    |                                                                                                                                                                                           |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🌐 API em produção | [https://api-antidoto-integration.onrender.com](https://api-antidoto-integration.onrender.com/actuator/health) · [Swagger](https://api-antidoto-integration.onrender.com/swagger-ui.html) |
+|                                |                                                                                                                                                                                           |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🌐 API em produção             | [https://api-antidoto-integration.onrender.com](https://api-antidoto-integration.onrender.com/actuator/health) · [Swagger](https://api-antidoto-integration.onrender.com/swagger-ui.html) |
+| 🎬 Vídeo de apresentação       | [YouTube](https://www.youtube.com/watch?v=ec07gQ9ow4U)                                                                                                                                    |
+| 📦 App (APK)                   | Firebase App Distribution: o professor recebe o convite por e-mail                                                                                                                        |
+| 🔖 Commit de referência do APK | `ed3b28c` (versão 1.0.0, build 2; o mesmo da tela "Sobre o App")                                                                                                                          |
 
 ---
 
@@ -49,18 +52,18 @@ Os dois CRUDs (ocorrências e avistamentos), o perfil (com **alterar a senha**),
 
 ## 🚧 Andamento
 
-| Passo | O que entra                                                                                                                                   | Situação                                                                              |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 1     | Base do projeto: Expo + expo-router, NativeWind com a identidade visual, fonte Inter, camada da API, enums e rótulos, ESLint + Prettier, Jest | ✅                                                                                    |
-| 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅                                                                                    |
-| 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅                                                                                    |
-| 4     | Unidades próximas com soro compatível (GPS, Ligar e Rota) e primeiros socorros                                                                | ✅                                                                                    |
-| 5     | CRUD de avistamentos (aba Avistamentos, novo, editar e excluir com confirmação; localização pelo GPS)                                         | ✅                                                                                    |
-| 6     | Registrar ocorrência (com a volta pelo login), resumo por IA consultado a cada 3 s e aba Ocorrências                                          | ✅                                                                                    |
-| 7     | Perfil (editar nome e telefone) e Sobre o App (versão, build e hash do commit, integrantes)                                                   | ✅                                                                                    |
-| 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | 🔜 app apontando para a API no Render (`eas.json`); falta o APK no Firebase e o vídeo |
-| 8.2   | Primeiros socorros pela API e atualizar a ocorrência (sintomas e unidade), completando o CRUD                                                 | ✅                                                                                    |
-| 8.3   | Alterar senha no Perfil (Segurança)                                                                                                           | ✅                                                                                    |
+| Passo | O que entra                                                                                                                                   | Situação                                               |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| 1     | Base do projeto: Expo + expo-router, NativeWind com a identidade visual, fonte Inter, camada da API, enums e rótulos, ESLint + Prettier, Jest | ✅                                                     |
+| 2     | Login, cadastro, abas e logout (sessão JWT) + identidade visual: logo, ícone e splash                                                         | ✅                                                     |
+| 3     | Triagem e resultado (urgência calculada no app, sem internet) + botão SOS no login e no Início                                                | ✅                                                     |
+| 4     | Unidades próximas com soro compatível (GPS, Ligar e Rota) e primeiros socorros                                                                | ✅                                                     |
+| 5     | CRUD de avistamentos (aba Avistamentos, novo, editar e excluir com confirmação; localização pelo GPS)                                         | ✅                                                     |
+| 6     | Registrar ocorrência (com a volta pelo login), resumo por IA consultado a cada 3 s e aba Ocorrências                                          | ✅                                                     |
+| 7     | Perfil (editar nome e telefone) e Sobre o App (versão, build e hash do commit, integrantes)                                                   | ✅                                                     |
+| 8     | Nuvem, publicação no Firebase App Distribution e vídeo                                                                                        | ✅ APK no Firebase App Distribution e vídeo no YouTube |
+| 8.2   | Primeiros socorros pela API e atualizar a ocorrência (sintomas e unidade), completando o CRUD                                                 | ✅                                                     |
+| 8.3   | Alterar senha no Perfil (Segurança)                                                                                                           | ✅                                                     |
 
 ---
 
@@ -158,9 +161,3 @@ A API Java usa IA para escrever o **resumo de pré-atendimento** que a pessoa mo
 - A API confere a resposta e descarta a que fala de dose, traz outro nível de urgência, inventa sinal de alerta ou passa de 6 segundos. Nesses casos vale um **modelo de texto** fixo, e a ocorrência nunca fica sem resumo.
 - A **urgência é sempre calculada pela regra (RN-U)**, nunca pela IA. A tela mostra o aviso "Resumo gerado por IA. Não substitui avaliação profissional." (RN-G7).
 - A chave da IA fica só na API (variável de ambiente no Render): o app não tem nenhuma chave.
-
----
-
-## 📝 A completar antes da entrega
-
-- **Link do vídeo** (até 5 minutos, no YouTube).
